@@ -8,5 +8,5 @@ import IHero from './IHero';
 import path from 'path';
 import ineeda from 'ineeda';
 
-let hero = ineeda<IHero>(path.resolve(__dirname, './IHero'));
+let hero = ineeda<IHero>(path.resolve('./IHero'));
 ```
