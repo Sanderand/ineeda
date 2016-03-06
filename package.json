@@ -1,0 +1,11 @@
+{
+  "name": "ineeda",
+  "version": "0.0.1",
+  "description": "",
+  "main": "ineeda.js",
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "typescript": "1.8.7"
+  }
+}
