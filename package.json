@@ -1,11 +1,40 @@
 {
   "name": "ineeda",
-  "version": "0.0.1",
-  "description": "",
-  "main": "ineeda.js",
-  "author": "",
+  "version": "0.1.0",
+  "description": "Create stub objects from TypeScript interfaces!",
+  "main": "dist/index.js",
+  "repository": "phenomnomnominal/ineeda",
+  "author": "Craig Spence <craigspence0@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "init": "npm install && typings install && npm run build",
+    "clean": "trash 'dist' 'src/**/*.js' 'test/**/*.js'",
+    "lint": "tslint -c './tslint.json' './src/**/*.ts'",
+    "compile": "tsc",
+    "pretest": "tsc test/*.spec.ts",
+    "test": "multi='spec=- html-cov=reports/coverage.html' mocha -r blanket --reporter mocha-multi",
+    "copy": "copy ./src/ineeda.d.ts > ./dist/ineeda.d.ts",
+    "build": "npm run clean && npm run lint && npm run test && npm run compile && npm run copy"
+  },
+  "config": {
+    "blanket": {
+      "pattern": "///[\\w-]+\\.js$/",
+      "data-cover-never": [
+        "node_modules"
+      ]
+    }
+  },
   "dependencies": {
     "typescript": "1.8.7"
+  },
+  "devDependencies": {
+    "blanket": "^1.1.9",
+    "chai": "3.5.0",
+    "copy-cli": "1.2.1",
+    "mocha": "2.4.5",
+    "mocha-multi": "0.9.0",
+    "trash-cli": "1.2.1",
+    "tslint": "3.5.0",
+    "typings": "0.6.10"
   }
 }
