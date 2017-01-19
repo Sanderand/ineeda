@@ -1,40 +1,50 @@
 {
   "name": "ineeda",
-  "version": "0.1.0",
+  "version": "0.2.0-beta.0",
   "description": "Create stub objects from TypeScript interfaces!",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "repository": "phenomnomnominal/ineeda",
   "author": "Craig Spence <craigspence0@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "init": "npm install && typings install && npm run build",
-    "clean": "trash 'dist' 'src/**/*.js' 'test/**/*.js'",
-    "lint": "tslint -c './tslint.json' './src/**/*.ts'",
     "compile": "tsc",
-    "pretest": "tsc test/*.spec.ts",
-    "test": "multi='spec=- html-cov=reports/coverage.html' mocha -r blanket --reporter mocha-multi",
-    "copy": "copy ./src/ineeda.d.ts > ./dist/ineeda.d.ts",
-    "build": "npm run clean && npm run lint && npm run test && npm run compile && npm run copy"
-  },
-  "config": {
-    "blanket": {
-      "pattern": "///[\\w-]+\\.js$/",
-      "data-cover-never": [
-        "node_modules"
-      ]
-    }
+    "test:jest": "jest",
+    "test:karma:karma-typescript": "karma start karma.karma-typescript.conf.js",
+    "test:mocha": "mocha --opts ./.mocharc 'dist/**/*.spec.js'",
+    "build": "npm run compile && npm run test:mocha && npm run test:karma:karma-typescript"
   },
   "dependencies": {
-    "typescript": "1.8.7"
+    "source-map-support": "0.4.8",
+    "typescript": "2.0.10"
   },
   "devDependencies": {
-    "blanket": "^1.1.9",
+    "@types/chai": "3.4.34",
+    "@types/jasmine": "2.5.40",
+    "@types/node": "7.0.0",
+    "@types/source-map-support": "0.2.28",
     "chai": "3.5.0",
-    "copy-cli": "1.2.1",
-    "mocha": "2.4.5",
-    "mocha-multi": "0.9.0",
-    "trash-cli": "1.2.1",
-    "tslint": "3.5.0",
-    "typings": "0.6.10"
+    "jasmine": "2.5.3",
+    "jest": "18.1.0",
+    "karma": "1.3.0",
+    "karma-chai": "0.1.0",
+    "karma-chrome-launcher": "2.0.0",
+    "karma-ineeda": "0.1.0",
+    "karma-jasmine": "1.1.0",
+    "karma-typescript": "2.1.6",
+    "mocha": "3.2.0",
+    "ts-jest": "18.0.1"
+  },
+  "jest": {
+    "globals": {
+      "__TS_CONFIG__": "tsconfig.json"
+    },
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "transform": {
+      "\\.(ts)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "/test/.*\\.spec\\.ts$"
   }
 }

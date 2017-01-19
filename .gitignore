@@ -1,7 +1,5 @@
 npm-debug.log*
 node_modules
 .npm
-typings
 reports
-src/**/*.js
-test/**/*.js
+dist
