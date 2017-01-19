@@ -20,5 +20,5 @@ let realHero: Hero = ineed.aninstanceof<Hero>(Hero);
 console.log(realHero instanceof Hero); // true;
 
 let horse: IHorse = ineed.a<IHorse>();
-console.log(horse.hero.weapon.sharpen()); // // Error('"Weapon.sharpen" is not implemented.');
+console.log(horse.hero.weapon.sharpen()); // Error('"Weapon.sharpen" is not implemented.');
 ```
