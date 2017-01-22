@@ -6,7 +6,7 @@ import { Import } from './import';
 let imports: Array<Import>;
 export function parseImports (path: string): Array<Import> {
     imports = [];
-    
+
     let sourceFile = getSourceFile(path);
     ts.forEachChild(sourceFile, node => {
         visit(node);

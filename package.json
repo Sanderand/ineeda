@@ -11,7 +11,7 @@
     "test:jest": "jest",
     "test:karma:karma-typescript": "karma start karma.karma-typescript.conf.js",
     "test:mocha": "mocha --opts ./.mocharc 'dist/**/*.spec.js'",
-    "build": "npm run compile && npm run test:mocha && npm run test:karma:karma-typescript"
+    "build": "npm run compile && npm run test:jest && npm run test:mocha && npm run test:karma:karma-typescript"
   },
   "dependencies": {
     "source-map-support": "0.4.8",

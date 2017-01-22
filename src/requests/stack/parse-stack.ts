@@ -1,5 +1,6 @@
 // Constants:
 const CALLER_PATH_REGEX = /\((.*):(\d+):(\d+)\)$/;
+const SOURCE_MAP_FILE_REGEX = /^(?:.*file:)?(.*)$/;
 const STACK_DEPTH = 4;
 
 // Dependencies:
@@ -14,7 +15,9 @@ export function parseStack (): Position {
 
     let callerLine = stackLines[STACK_DEPTH];
 
-    let [, path, lineStr, columnStr] = callerLine.match(CALLER_PATH_REGEX);
+    let [, sourceMapPath, lineStr, columnStr] = callerLine.match(CALLER_PATH_REGEX);
+    let [, path] = sourceMapPath.match(SOURCE_MAP_FILE_REGEX);
+
     let column = +columnStr - 1;
     let line = +lineStr - 1;
 
