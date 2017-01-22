@@ -1,13 +1,7 @@
-npm-debug.log*
+src/
+test/
+dist/test/
 
-node_modules
-
-reports
-
-src
-test
-
-.gitignore
 .mocharc
 karma.conf.js
 tsconfig.json
