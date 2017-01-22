@@ -19,6 +19,6 @@ module.exports = function (config) {
             tsconfig: './tsconfig.json'
         },
 
-        singleRun: false
+        singleRun: true
     });
 }

@@ -2,6 +2,7 @@
 const CALLER_PATH_REGEX = /\((.*):(\d+):(\d+)\)$/;
 const SOURCE_MAP_FILE_REGEX = /^(?:.*file:)?(.*)$/;
 const STACK_DEPTH = 4;
+const URL_FILE_REGEX = /.*:\/\/.*:\d+/;
 
 // Dependencies:
 import { Position } from './position';
@@ -17,6 +18,7 @@ export function parseStack (): Position {
 
     let [, sourceMapPath, lineStr, columnStr] = callerLine.match(CALLER_PATH_REGEX);
     let [, path] = sourceMapPath.match(SOURCE_MAP_FILE_REGEX);
+    path = path.replace(URL_FILE_REGEX, '');
 
     let column = +columnStr - 1;
     let line = +lineStr - 1;
