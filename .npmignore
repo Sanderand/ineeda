@@ -7,8 +7,6 @@ reports
 src
 test
 
-dist/test
-
 .mocharc
 karma.conf.js
 tsconfig.json
