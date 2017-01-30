@@ -3,6 +3,7 @@
   "version": "0.2.2-beta.3",
   "description": "Create stub objects from TypeScript interfaces!",
   "main": "dist/src/index.js",
+  "typings": "dist/src/index.d.ts",
   "repository": "phenomnomnominal/ineeda",
   "author": "Craig Spence <craigspence0@gmail.com>",
   "license": "MIT",
