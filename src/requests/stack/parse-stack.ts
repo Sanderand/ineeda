@@ -3,6 +3,9 @@ const CALLER_PATH_REGEX = /\((.*):(\d+):(\d+)\)/;
 const SOURCE_MAP_FILE_REGEX = /^(?:.*file:)?(.*)$/;
 const URL_FILE_REGEX = /.*:\/\/.*:\d+/;
 
+// Utiltieis:
+import '../../common/remove-promise-shim';
+
 // Dependencies:
 import { Position } from './position';
 import * as sorcery from 'sorcery';
