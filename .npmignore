@@ -1,7 +1,3 @@
-src/
-test/
-types/
-
 .DS_Store
 .mocharc
 karma.conf.js
