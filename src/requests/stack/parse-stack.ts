@@ -1,12 +1,11 @@
 // Constants:
-const CALLER_PATH_REGEX = /\((.*):(\d+):(\d+)\)$/;
+const CALLER_PATH_REGEX = /\((.*):(\d+):(\d+)\)/;
 const SOURCE_MAP_FILE_REGEX = /^(?:.*file:)?(.*)$/;
-const STACK_DEPTH = 4;
 const URL_FILE_REGEX = /.*:\/\/.*:\d+/;
 
 // Dependencies:
 import { Position } from './position';
-import 'source-map-support/register';
+import * as sorcery from 'sorcery';
 
 export function parseStack (): Position {
     let { stack } = new Error();
@@ -14,14 +13,36 @@ export function parseStack (): Position {
     let stackLines = stack.split(/\n/)
     .map(l => l.trim())
 
-    let callerLine = stackLines[STACK_DEPTH];
+    let stackDepth = stackLines.findIndex(findRelevantStackLine);
+    let callerLine = stackLines[stackDepth + 1];
 
     let [, sourceMapPath, lineStr, columnStr] = callerLine.match(CALLER_PATH_REGEX);
-    let [, path] = sourceMapPath.match(SOURCE_MAP_FILE_REGEX);
-    path = path.replace(URL_FILE_REGEX, '');
+    let [, source] = sourceMapPath.match(SOURCE_MAP_FILE_REGEX);
+    source = source.replace(URL_FILE_REGEX, '');
+
+    let mapping = sorcery.loadSync(source);
 
     let column = +columnStr - 1;
     let line = +lineStr - 1;
 
-    return new Position(column, line, path);
+    if (mapping) {
+        let trace = mapping.trace(line, column);
+        column = trace.column;
+        line = trace.line;
+        source = trace.source;
+    }
+    return new Position(column, line, source);
+}
+
+function findRelevantStackLine (stackLine: string): boolean {
+    return [findIneedaCall, findIneedaFile]
+    .reduce((p, n) => p || n(stackLine), false);
+}
+
+function findIneedaCall (stackLine: string): boolean {
+    return stackLine.startsWith('at Ineeda.a');
+}
+
+function findIneedaFile (stackLine: string): boolean {
+    return stackLine.includes('src/ineeda.');
 }

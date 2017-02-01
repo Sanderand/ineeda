@@ -1,3 +1,6 @@
+// Utilities:
+import './get-fake-sys';
+
 // Dependencies:
 import * as ts from 'typescript';
 import { SourceFiles } from './source-files';

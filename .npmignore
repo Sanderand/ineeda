@@ -1,7 +1,8 @@
 src/
 test/
-dist/test/
+types/
 
+.DS_Store
 .mocharc
 karma.conf.js
 tsconfig.json

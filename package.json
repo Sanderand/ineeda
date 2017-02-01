@@ -1,6 +1,6 @@
 {
   "name": "ineeda",
-  "version": "0.3.0-beta.0",
+  "version": "0.3.1-beta.0",
   "description": "Create stub objects from TypeScript interfaces!",
   "main": "dist/src/index.js",
   "typings": "dist/src/index.d.ts",
@@ -12,17 +12,19 @@
     "test:jest": "jest",
     "test:karma": "karma start karma.conf.js",
     "test:mocha": "mocha --opts ./.mocharc 'dist/**/*.spec.js'",
-    "build": "npm run compile && npm run test:jest && npm run test:mocha && npm run test:karma"
+    "build": "npm run compile && npm run test:jest && npm run test:mocha && npm run test:karma",
+    "prepublish": "npm run build"
   },
   "dependencies": {
-    "source-map-support": "0.4.8",
-    "typescript": "2.0.10"
+    "sorcery": "0.10.0"
+  },
+  "peerDependencies": {
+    "typescript": "^2"
   },
   "devDependencies": {
     "@types/chai": "3.4.34",
     "@types/jasmine": "2.5.40",
     "@types/node": "7.0.0",
-    "@types/source-map-support": "0.2.28",
     "chai": "3.5.0",
     "jasmine": "2.5.3",
     "jest": "18.1.0",
@@ -33,7 +35,8 @@
     "karma-jasmine": "1.1.0",
     "karma-typescript": "2.1.6",
     "mocha": "3.2.0",
-    "ts-jest": "18.0.1"
+    "ts-jest": "18.0.1",
+    "typescript": "^2"
   },
   "jest": {
     "globals": {

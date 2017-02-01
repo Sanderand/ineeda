@@ -1,7 +1,15 @@
+// Utilities:
+import './get-fake-fs';
+
 // Dependencies:
+import * as fs from 'fs';
 import * as ts from 'typescript';
 
 class FakeSys {
+    directoryExists (): boolean {
+        return false;
+    }
+
     getCurrentDirectory (): string {
         return '';
     }
@@ -11,17 +19,7 @@ class FakeSys {
     }
 
     readFile (path: string): string {
-        let clientWindow = <any>window;
-
-        if (!clientWindow.__ineeda__readFile__(path)) {
-            throw new Error(`Could not read "${path}". \`window.__ineeda__readFile__\` is not defined.`);
-        }
-
-        try {
-            return clientWindow.__ineeda__readFile__(path);
-        } catch (e) {
-            throw new Error(`Could not read "${path}".`);
-        }
+        return fs.readFileSync(path).toString();
     }
 }
 
