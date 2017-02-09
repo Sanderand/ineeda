@@ -7,7 +7,7 @@ Auto-mocking from TypeScript interfaces!
 # Installation:
 
 ```
-npm install ineeda --DE
+npm install ineeda --D
 ```
 
 # Usage:
@@ -15,13 +15,11 @@ npm install ineeda --DE
 To get a mock of a concrete class:
 
 ```typescript
-// Types:
 import Hero from './Hero';
 
-// Dependencies:
-import ineed from 'ineeda';
+import ineeda from 'ineeda';
 
-let hero: Hero = ineed.a<Hero>();
+let hero: Hero = ineeda<Hero>();
 console.log(hero.age); // 0
 console.log(hero.name); // ''
 console.log(hero.weapon.isMagic); // false
@@ -32,25 +30,41 @@ console.log(hero.weapon.sharpen()); // Error('"Weapon.sharpen" is not implemente
 To get a mock of a concrete class that is an actual instance of that class:
 
 ```typescript
-// Types:
 import Hero from './Hero';
 
-// Dependencies:
 import ineed from 'ineeda';
 
-let realHero: Hero = ineed.aninstanceof<Hero>(Hero);
+let realHero: Hero = ineeda<Hero>({ instanceof: Hero });
 console.log(realHero instanceof Hero); // true;
 ```
 
 To get a mock of an interface:
 
 ```typescript
-// Types:
 import IHorse from './IHorse';
 
-// Dependencies:
 import ineed from 'ineeda';
 
-let horse: IHorse = ineed.a<IHorse>();
-console.log(horse.hero.weapon.sharpen()); // Error('"Weapon.sharpen" is not implemented.');
+let horse: IHorse = ineeda<IHorse>();
+horse.hero.weapon.sharpen(); // Error('"Weapon.sharpen" is not implemented.');
+```
+
+To get a mock of something that has no type information:
+
+```typescript
+// Hero.ts
+import * as Promise from 'bluebird'; // Has no types:
+
+export default class Hero {
+    // ...
+    holdOut: Promise<any>;
+}
+
+// Hero.spec.ts
+import Hero from './Hero';
+
+import ineed from 'ineeda';
+
+let realHero: Hero = ineeda<Hero>({ proxy: true });
+hero.holdOut.then(); // Error('"Hero.holdOut.then" is not implemented.');
 ```

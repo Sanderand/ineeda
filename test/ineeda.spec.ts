@@ -1,22 +1,25 @@
 // Test Utilities:
 import * as chai from 'chai';
+import * as sinon from 'sinon';
+import * as sinonChai from 'sinon-chai';
 
 // Test setup:
 let { expect } = chai;
+chai.use(sinonChai);
 
 // Dependencies:
 import Hero from './types/Hero';
 import IHorse from './types/IHorse';
 
 // Under test:
-import ineed from '../src/index';
+import ineeda from '../src/index';
 
 describe('ineeda:', () => {
-    describe('ineed.a:', () => {
+    describe('ineeda:', () => {
         let hero: Hero;
 
         beforeEach(() => {
-            hero = ineed.a<Hero>();
+            hero = ineeda<Hero>();
         });
 
         it('should create a mock of a class', () => {
@@ -24,7 +27,7 @@ describe('ineeda:', () => {
         });
 
         it('should create a mock of an interface', () => {
-            let horse: IHorse = ineed.a<IHorse>();
+            let horse: IHorse = ineeda<IHorse>();
             expect(horse).to.not.be.undefined;
         })
 
@@ -64,11 +67,11 @@ describe('ineeda:', () => {
         });
     });
 
-    describe('ineed.aninstanceof:', () => {
+    describe('ineeda - instanceof:', () => {
         let hero: Hero;
 
         beforeEach(() => {
-            hero = ineed.aninstanceof<Hero>(Hero);
+            hero = ineeda<Hero>({ instanceof: Hero });
         });
 
         it('should create a mock of a class', () => {
@@ -77,6 +80,34 @@ describe('ineeda:', () => {
 
         it('should be an actual instance of the class', () => {
             expect(hero).to.be.an.instanceof(Hero);
+        });
+    });
+
+    describe('ineeda - proxy', () => {
+        it('should throw an error when mocking a value of an unknown type', () => {
+            let hero = ineeda<Hero>();
+
+            expect(() => {
+                console.log(hero.holdOut);
+            }).to.throw(`
+                Could not mock "holdOut" on <Hero>.
+                    This probably means there was no type information available for <Promise>.
+                    Either add type information, or call \`ineeda<Hero>({ proxy: true });\`
+            `);
+        });
+
+        it('should return a proxied mock when mocking a value of an unknown type', () => {
+            let hero = ineeda<Hero>({ proxy: true });
+
+            expect(hero.holdOut).to.not.equal(undefined);
+        });
+
+        it('should return a proxied function when mocking a function of an unknown type', () => {
+            let hero = ineeda<Hero>({ proxy: true });
+
+            expect(() => {
+                hero.holdOut.then()
+            }).to.throw('"Hero.holdOut.then" is not implemented.');
         });
     });
 });

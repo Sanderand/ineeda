@@ -1,3 +1,7 @@
+// Constants:
+const JS_EXTENSION = '.js';
+const TS_EXTENSION_REGEX = /\.ts$/;
+
 // Utilities:
 import './get-fake-sys';
 
@@ -11,7 +15,19 @@ export function getSourceFile (path: string): ts.SourceFile {
         return SOURCE_FILES[path];
     }
 
-    let content = ts.sys.readFile(path);
+    let tsPath = path;
+    let jsPath = path.replace(TS_EXTENSION_REGEX, JS_EXTENSION);
+
+    let content = ts.sys.readFile(tsPath);
+    content = content || ts.sys.readFile(jsPath);
+    if (!content) {
+        throw new Error(`
+            Could not read source file! Tried:
+                ${tsPath},
+                ${jsPath}
+        `);
+    }
+
     let setParentNodes = true;
     let sourceFile = ts.createSourceFile(path, content, null, setParentNodes);
     (<any>ts).bindSourceFile(sourceFile, {});

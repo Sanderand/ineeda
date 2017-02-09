@@ -19,7 +19,8 @@ class FakeSys {
     }
 
     readFile (path: string): string {
-        return fs.readFileSync(path).toString();
+        let file = fs.readFileSync(path);
+        return file ? file.toString() : null;
     }
 }
 

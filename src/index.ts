@@ -1,4 +1,4 @@
 // Dependencies:
-import { Ineeda } from './ineeda';
+import { ineeda } from './ineeda';
 
-export default new Ineeda();
+export default ineeda;

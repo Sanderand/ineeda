@@ -38,14 +38,5 @@ export function parseStack (): Position {
 }
 
 function findRelevantStackLine (stackLine: string): boolean {
-    return [findIneedaCall, findIneedaFile]
-    .reduce((p, n) => p || n(stackLine), false);
-}
-
-function findIneedaCall (stackLine: string): boolean {
-    return stackLine.startsWith('at Ineeda.a');
-}
-
-function findIneedaFile (stackLine: string): boolean {
     return stackLine.includes('src/ineeda.');
 }
