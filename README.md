@@ -65,6 +65,6 @@ import Hero from './Hero';
 
 import ineed from 'ineeda';
 
-let realHero: Hero = ineeda<Hero>({ proxy: true });
+let hero: Hero = ineeda<Hero>({ proxy: true });
 hero.holdOut.then(); // Error('"Hero.holdOut.then" is not implemented.');
 ```
