@@ -17,10 +17,8 @@ export function parseStack (): Position {
     .map(l => l.trim())
 
     let callerLine;
-    try {
-        let stackDepth = stackLines.findIndex(findRelevantStackLine);
-        callerLine = stackLines[stackDepth + 1];
-    } catch (e) {
+    let stackDepth = stackLines.findIndex(findRelevantStackLine);
+    if (stackDepth === -1) {
         let formattedStack = stackLines.join('\n                ');
         throw new Error(`
             Could not find call to "ineeda" in stacktrace:
@@ -28,6 +26,7 @@ export function parseStack (): Position {
                 ${formattedStack}
         `);
     }
+    callerLine = stackLines[stackDepth + 1];
 
     let columnStr, lineStr, source;
     try {
@@ -58,12 +57,16 @@ export function parseStack (): Position {
 }
 
 function findRelevantStackLine (stackLine: string): boolean {
-    return [findIneedaCall, findIneedaFile]
+    return [findIneedaInstanceCall, findIneedaFactoryCall, findIneedaFile]
     .reduce((p, n) => p || n(stackLine), false);
 }
 
-function findIneedaCall (stackLine: string): boolean {
-    return stackLine.startsWith('at Object.ineeda');
+function findIneedaInstanceCall (stackLine: string): boolean {
+    return stackLine.startsWith('at Object.instance');
+}
+
+function findIneedaFactoryCall (stackLine: string): boolean {
+    return stackLine.startsWith('at Function.factory');
 }
 
 function findIneedaFile (stackLine: string): boolean {

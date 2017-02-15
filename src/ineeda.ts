@@ -30,6 +30,7 @@ export function factory <T>(options?: IneedaOptions): IneedaFactory<T> {
         return mock;
     };
     factory.instances = instances;
+    factory.getLatest = () => factory.instances[factory.instances.length - 1];
     return factory;
 }
 

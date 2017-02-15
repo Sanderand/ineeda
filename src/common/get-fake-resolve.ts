@@ -1,4 +1,10 @@
+let cache = {};
 let resolve = function (id: string): string {
+    let path = cache[id];
+    if (path) {
+        return path;
+    }
+
     try {
         let resolved = require.resolve(id);
         if (typeof resolved === 'string') {
@@ -20,7 +26,8 @@ let resolve = function (id: string): string {
         `);
     }
 
-    return clientWindow.__ineeda__resolve__(id);
+    cache[id] = clientWindow.__ineeda__resolve__(id);
+    return cache[id];
 }
 
 export let fakeResolve = resolve;
