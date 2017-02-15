@@ -1,5 +1,5 @@
 // Constants:
-const TYPE_GENERIC_REGEX = /(?:a|aninstanceof)<(.*)>/
+const TYPE_GENERIC_REGEX = /(?:ineeda|ineeda\.factory)<([^<>]*)/
 
 // Utilities:
 import * as os from 'os';

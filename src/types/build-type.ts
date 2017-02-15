@@ -1,3 +1,6 @@
+// Constants:
+const TYPE_INFORMATION_REGEX = /(.*?)\.(.*)/;
+
 // Dependencies:
 import { build } from '../ineeda';
 import { getTypes } from './get-types';
@@ -6,8 +9,8 @@ import { IneedaOptions } from '../ineeda-options';
 import { Request } from '../requests/request';
 import { TypeProperty } from './type-property';
 
-export function buildType <T> (request: Request, options?: IneedaOptions): T {
-    let typeDescription = getTypes(request)[request.name];
+export function buildType <T> (request: Request, options: IneedaOptions): T {
+    let typeDescription = getTypes(request)[request.type];
 
     if (typeDescription) {
         let result = <T>{};
@@ -15,16 +18,21 @@ export function buildType <T> (request: Request, options?: IneedaOptions): T {
             getPropertyValue<T>(request, property, result, options);
         });
         return result;
+    } else {
+        if (options.proxy) {
+            return getProxyValue(request);
+        }
+        noTypeInformation(request);
     }
 }
 
-function getPropertyValue <T> (request: Request, property: TypeProperty, result: T, options?: IneedaOptions): void {
+function getPropertyValue <T> (request: Request, property: TypeProperty, result: T, options: IneedaOptions): void {
     let value: any;
 
     if (property.type === 'function') {
-        value = getFunctionValue(request.name, property.name);
+        value = getFunctionValue(request, property);
     } else {
-        value = getPrimitiveValue(property.type);
+        value = getPrimitiveValue(property);
     }
 
     if (value != null) {
@@ -34,13 +42,14 @@ function getPropertyValue <T> (request: Request, property: TypeProperty, result:
     }
 }
 
-function getFunctionValue (objectName: string, propertyName: string): () => void {
+function getFunctionValue (request: Request, property: TypeProperty): () => void {
     return () => {
-        notImplemented(objectName, propertyName);
+        notImplemented(request, property);
     };
 }
 
-function getPrimitiveValue (type: string): any {
+function getPrimitiveValue (property: TypeProperty): any {
+    let { type } = property;
     if (type === 'any') {
         return {};
     } else if (type === 'array') {
@@ -54,47 +63,102 @@ function getPrimitiveValue (type: string): any {
     }
 }
 
-function getTypedValue <T> (request: Request, property: TypeProperty, result: T, options?: IneedaOptions): void {
+function getTypedValue <T> (request: Request, property: TypeProperty, result: T, options: IneedaOptions): void {
+    let cache = {};
     Object.defineProperty(result, property.name, {
         get: (): any => {
-            let value = build<any>(getRequest.fromImport(request.path, property.type), options);
-            if (value !== null) {
-                return value;
+            let propName = property.name;
+
+            let cacheValue = cache[propName];
+            if (cacheValue) {
+                return cacheValue;
             }
-            if (options.proxy) {
-                return getProxyValue(request.name, property.name);
-            }
-            throw new Error(`
-                Could not mock "${property.name}" on <${request.name}>.
-                    This probably means there was no type information available for <${property.type}>.
-                    Either add type information, or call \`ineeda<${request.name}>({ proxy: true });\`
-            `);
+
+            let childRequest = new Request({
+                name: `${request.name}.${property.name}`,
+                path: request.path,
+                type: property.type
+            });
+            cache[propName] = build<any>(getRequest.fromImport(childRequest), options);
+            return cache[propName];
+        },
+        set: (value: any) => {
+            cache[property.name] = value;
         }
     });
 }
 
-function getProxyValue (objectName: string, propertyName: string): any {
-    let proxy = new Proxy(function () {}, {
-        get: function(target: any, key: any) {
-            if (key in target) {
-                return target[key];
-            }
-            if (typeof key === 'symbol' || key === 'inspect') {
-                return null;
-            }
+function getProxyValue (request: Request, property?: TypeProperty): any {
+    let result: any = { hasOwnProperty, toString };
+    let handlers = { apply, get, getOwnPropertyDescriptor, set };
+    return new Proxy(function () {}, handlers);
 
-            return getProxyValue(`${objectName}.${propertyName}`, key);
-        },
-        apply: function (target: any, context: any, args: any) {
-            return notImplemented(objectName, propertyName);
+    function apply () {
+        return notImplemented(request, property);
+    }
+
+    function get (target: any, key: any) {
+        if (Object.hasOwnProperty.call(result, key)) {
+            return result[key];
         }
-    });
 
-    return proxy;
+        let object = {};
+        if (key in object) {
+            return object[key];
+        }
+
+        if (shouldIgnore(property, key)) {
+            return null;
+        }
+
+        let requestName = property ? `${request.name}.${property.name}` : request.name;
+        let proxyRequest = new Request({ name: requestName, type: request.type, path: '' });
+        let proxyProperty = new TypeProperty(key, '');
+        result[key] = getProxyValue(proxyRequest, proxyProperty);
+        return result[key];
+    }
+
+    function hasOwnProperty () {
+        return true;
+    }
+
+    function shouldIgnore (property: TypeProperty, key: any) {
+        return property || typeof key === 'symbol' || key === 'inspect';
+    }
+
+    function getOwnPropertyDescriptor (target: any, key: any) {
+        let value = get(target, key);
+        return { configurable: true, enumerable: true, value };
+    }
+
+    function set (target: any, key: any, value: any) {
+        result[key] = value;
+        return true;
+    }
+
+    function toString () {
+        return 'IneedaProxy';
+    }
 };
 
-function notImplemented (objectName: string, propertyName: string) {
+function notImplemented (request: Request, property?: TypeProperty) {
+    let functionName = property ? `${request.name}.${property.name}` : request.name;
     throw new Error(`
-        "${objectName}.${propertyName}" is not implemented.
+        "${functionName}" is not implemented.
+    `);
+}
+
+function noTypeInformation (request: Request) {
+    let typeInformation = request.name.match(TYPE_INFORMATION_REGEX);
+    let property, rootType, toMock, toMockType;
+    if (typeInformation) {
+        [, rootType, property] = typeInformation;
+    }
+    property = property ? `"${property}" on ` : '';
+    rootType = rootType || request.type;
+    throw new Error(`
+        Could not mock ${property}<${rootType}>.
+            This probably means there was no type information available for <${request.type}>.
+            Either add type information, or call \`ineeda<${rootType}>({ proxy: true });\`
     `);
 }

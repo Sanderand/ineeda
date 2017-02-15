@@ -4,7 +4,7 @@ import { getEnums } from './get-enums';
 import { Request } from '../requests/request';
 
 export function buildEnum <T>(request: Request): T {
-    let enumDescription = getEnums(request)[request.name];
+    let enumDescription = getEnums(request)[request.type];
     if (enumDescription) {
         return getEnumValue<T>(enumDescription);
     }

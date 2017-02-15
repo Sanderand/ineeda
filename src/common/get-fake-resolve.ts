@@ -1,4 +1,11 @@
-function resolve (id: string): string {
+let resolve = function (id: string): string {
+    try {
+        let resolved = require.resolve(id);
+        if (typeof resolved === 'string') {
+            return resolved;
+        }
+    } catch (e) { }
+
     let clientWindow = <any>window;
 
     if (!clientWindow.__ineeda__resolve__) {
@@ -16,6 +23,4 @@ function resolve (id: string): string {
     return clientWindow.__ineeda__resolve__(id);
 }
 
-require.resolve = require.resolve || resolve;
-
-export let fakeRequire = require;
+export let fakeResolve = resolve;
