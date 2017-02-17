@@ -13,14 +13,14 @@ import Hero from './types/Hero';
 import IHorse from './types/IHorse';
 
 // Under test:
-import ineeda from '../src/index';
+import { ineeda, IneedaFactory, IneedaOptions } from '../src/index';
 
 describe('ineeda:', () => {
     describe('ineeda:', () => {
         let hero: Hero;
 
         beforeEach(() => {
-            let heroFactory = ineeda.factory<Hero>();
+            let heroFactory: IneedaFactory<Hero> = ineeda.factory<Hero>();
             hero = heroFactory();
         });
 
@@ -103,7 +103,8 @@ describe('ineeda:', () => {
         let hero: Hero;
 
         beforeEach(() => {
-            hero = ineeda<Hero>({ instanceof: Hero });
+            let options: IneedaOptions = { instanceof: Hero }
+            hero = ineeda<Hero>(options);
         });
 
         it('should create a mock of a class', () => {
@@ -119,7 +120,8 @@ describe('ineeda:', () => {
         let hero: Hero;
 
         beforeEach(() => {
-            hero = ineeda<Hero>({ proxy: true });
+            let options: IneedaOptions = { proxy: true }
+            hero = ineeda<Hero>(options);
         });
 
         it('should return a proxied mock when mocking a value of an unknown type', () => {

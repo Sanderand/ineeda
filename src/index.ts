@@ -3,7 +3,10 @@ import { IneedaApi } from './ineeda-api';
 import { IneedaOptions } from './ineeda-options';
 import { factory, instance } from './ineeda';
 
-let ineeda = <IneedaApi>instance;
-ineeda.factory = factory;
+let api = <IneedaApi>instance;
+api.factory = factory;
 
-export default ineeda;
+export const ineeda = api;
+
+export * from './ineeda-factory';
+export * from './ineeda-options';

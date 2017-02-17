@@ -2318,9 +2318,9 @@ karma-coverage@^1.1.1:
     minimatch "^3.0.0"
     source-map "^0.5.1"
 
-karma-ineeda@0.3.0-beta.0:
-  version "0.3.0-beta.0"
-  resolved "https://registry.yarnpkg.com/karma-ineeda/-/karma-ineeda-0.3.0-beta.0.tgz#f1b23584cf843920f85fe4eabfeebc3412f15215"
+karma-ineeda@0.3.1-beta.0:
+  version "0.3.1-beta.0"
+  resolved "https://registry.yarnpkg.com/karma-ineeda/-/karma-ineeda-0.3.1-beta.0.tgz#eb44f00ea735e47b20e56a275a89c2f6df010133"
 
 karma-jasmine@1.1.0:
   version "1.1.0"

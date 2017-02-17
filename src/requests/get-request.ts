@@ -27,24 +27,21 @@ function fromImport (request: Request): Request {
     }
 
     let importPath = importDescription.path;
-
+    let requestPath;
     if (importPath.startsWith('.') && !importPath.endsWith(TS_EXTENSION)) {
         importPath = `${importPath}${TS_EXTENSION}`
+        requestPath = path.resolve(path.dirname(currentFilePath), importPath);
     }
     if (!importPath.startsWith('.')) {
-        let resolvePath = importPath;
-        importPath = fakeResolve(resolvePath);
-        if (!importPath) {
-            throw new Error(`Could not resolve "${resolvePath}".`);
+        let resolvedPath = fakeResolve(importPath);
+        if (!resolvedPath) {
+            throw new Error(`Could not resolve "${importPath}".`);
         }
+        requestPath = resolvedPath;
     }
-    importPath = importPath.replace(JS_EXTENSION_REGEX, TS_EXTENSION);
+    requestPath = requestPath.replace(JS_EXTENSION_REGEX, TS_EXTENSION);
 
-    return new Request({
-        name,
-        path: path.resolve(path.dirname(currentFilePath), importPath),
-        type
-    });
+    return new Request({ name, path: requestPath, type });
 }
 
 function fromStack (): Request {
