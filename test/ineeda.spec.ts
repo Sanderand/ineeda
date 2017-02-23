@@ -120,7 +120,7 @@ describe('ineeda:', () => {
         let hero: Hero;
 
         beforeEach(() => {
-            let options: IneedaOptions = { proxy: true }
+            let options: IneedaOptions = { proxy: true };
             hero = ineeda<Hero>(options);
         });
 

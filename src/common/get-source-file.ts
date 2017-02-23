@@ -1,9 +1,11 @@
 // Constants:
 const JS_EXTENSION = '.js';
+const NODE_MODULES_REGEX = /(.*)\/node_modules\/([^\/]*)\/.*/;
 const TS_EXTENSION_REGEX = /\.ts$/;
 
 // Utilities:
 import './get-fake-sys';
+import { isUndefined } from 'util';
 
 // Dependencies:
 import * as ts from 'typescript';
@@ -11,7 +13,7 @@ import { SourceFiles } from './source-files';
 
 let SOURCE_FILES: SourceFiles = {};
 export function getSourceFile (path: string): ts.SourceFile {
-    if (SOURCE_FILES[path]) {
+    if (!isUndefined(SOURCE_FILES[path])) {
         return SOURCE_FILES[path];
     }
 

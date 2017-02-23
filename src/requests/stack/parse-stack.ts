@@ -3,20 +3,23 @@ const CALLER_PATH_REGEX = /(?:at.*(?:\s|\())*(.*):(\d+):(\d+)/;
 const SOURCE_MAP_FILE_REGEX = /^(?:.*file:)?(.*)$/;
 const URL_FILE_REGEX = /.*:\/\/.*:\d+/;
 
-// Utiltieis:
+// Utilities:
 import '../../common/remove-promise-shim';
+import { isUndefined } from 'util';
 
 // Dependencies:
 import { Position } from './position';
 import * as sorcery from 'sorcery';
 
+let mappingCache = {};
+let traceCache = {};
 export function parseStack (): Position {
     let { stack } = new Error();
 
-    let stackLines = stack.split(/\n/)
-    .map(l => l.trim())
+    let stackLines: Array<string> = stack.split(/\n/)
+    .map(l => l.trim());
 
-    let callerLine;
+    let callerLine: string;
     let stackDepth = stackLines.findIndex(findRelevantStackLine);
     if (stackDepth === -1) {
         let formattedStack = stackLines.join('\n                ');
@@ -28,9 +31,11 @@ export function parseStack (): Position {
     }
     callerLine = stackLines[stackDepth + 1];
 
-    let columnStr, lineStr, source;
+    let columnStr: string;
+    let lineStr: string;
+    let source: string;
     try {
-        let sourceMapPath;
+        let sourceMapPath: string;
         [, sourceMapPath, lineStr, columnStr] = callerLine.match(CALLER_PATH_REGEX);
         [, source] = sourceMapPath.match(SOURCE_MAP_FILE_REGEX);
         source = source.replace(URL_FILE_REGEX, '');
@@ -39,16 +44,25 @@ export function parseStack (): Position {
             Could not parse "ineeda" call location:
 
                 ${callerLine}
-        `)
+        `);
     }
 
-    let mapping = sorcery.loadSync(source);
+    let mapping = mappingCache[source];
+    if (isUndefined(mapping)) {
+        mapping = sorcery.loadSync(source);
+        mappingCache[source] = mapping;
+    }
 
     let column = +columnStr - 1;
     let line = +lineStr - 1;
 
     if (mapping) {
-        let trace = mapping.trace(line, column);
+        let traceKey = `${mapping.node.file}.${line}.${column}`;
+        let trace = traceCache[traceKey]
+        if (isUndefined(trace)) {
+            trace = mapping.trace(line, column);
+            traceCache[traceKey] = trace;
+        }
         column = trace.column;
         line = trace.line;
         source = trace.source;

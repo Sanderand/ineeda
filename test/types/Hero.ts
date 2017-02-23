@@ -1,5 +1,6 @@
 // Utilities:
 import * as Promise from 'bluebird';
+import { Observable } from 'rxjs/Observable';
 
 // Dependencies:
 import HeroSpeciesEnum from './HeroSpecies.enum';
@@ -14,4 +15,5 @@ export default class Hero {
     species: HeroSpeciesEnum;
     weapon: Weapon;
     holdOut: Promise<any>;
+    victories$: Observable<number>;
 }

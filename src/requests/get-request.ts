@@ -27,7 +27,7 @@ function fromImport (request: Request): Request {
     }
 
     let importPath = importDescription.path;
-    let requestPath;
+    let requestPath: string;
     if (importPath.startsWith('.') && !importPath.endsWith(TS_EXTENSION)) {
         importPath = `${importPath}${TS_EXTENSION}`
         requestPath = path.resolve(path.dirname(currentFilePath), importPath);

@@ -1,3 +1,6 @@
+// Utilities:
+import { isUndefined } from 'util';
+
 // Dependencies:
 import * as fs from 'fs';
 
@@ -7,7 +10,7 @@ class FakeWriteStream { }
 let cache = {};
 function readFile (path: string): string {
     let file = cache[path];
-    if (file) {
+    if (!isUndefined(file)) {
         return file;
     }
 

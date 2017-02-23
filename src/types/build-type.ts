@@ -139,7 +139,7 @@ function getProxyValue (request: Request, property?: TypeProperty): any {
     function toString () {
         return 'IneedaProxy';
     }
-};
+}
 
 function notImplemented (request: Request, property?: TypeProperty) {
     let functionName = property ? `${request.name}.${property.name}` : request.name;
@@ -150,7 +150,8 @@ function notImplemented (request: Request, property?: TypeProperty) {
 
 function noTypeInformation (request: Request) {
     let typeInformation = request.name.match(TYPE_INFORMATION_REGEX);
-    let property, rootType, toMock, toMockType;
+    let property: string;
+    let rootType: string;
     if (typeInformation) {
         [, rootType, property] = typeInformation;
     }

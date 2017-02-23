@@ -1,6 +1,5 @@
 // Dependencies:
 import { IneedaApi } from './ineeda-api';
-import { IneedaOptions } from './ineeda-options';
 import { factory, instance } from './ineeda';
 
 let api = <IneedaApi>instance;
