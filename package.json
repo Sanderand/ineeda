@@ -1,6 +1,6 @@
 {
   "name": "ineeda",
-  "version": "0.5.1-beta.0",
+  "version": "0.6.0-alpha.0",
   "description": "Create stub objects from TypeScript interfaces!",
   "main": "dist/src/index.js",
   "typings": "dist/src/index.d.ts",
@@ -15,9 +15,7 @@
     "build": "npm run compile && npm run test:jest && npm run test:mocha && npm run test:karma",
     "prepublish": "rm -rf dist && npm run build"
   },
-  "dependencies": {
-    "sorcery": "0.10.0"
-  },
+  "dependencies": {},
   "peerDependencies": {
     "typescript": "^2"
   },
