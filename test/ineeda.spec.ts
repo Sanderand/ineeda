@@ -16,6 +16,10 @@ import Weapon from './types/Weapon';
 // Under test:
 import { ineeda, IneedaFactory } from '../src/index';
 
+ineeda.unproxy({
+    values: { restore: null, calledBefore: null }
+})
+
 describe('ineeda:', () => {
     describe('ineeda:', () => {
         let hero: Hero;

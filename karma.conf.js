@@ -6,7 +6,7 @@ module.exports = function (config) {
             './node_modules/@types/**/*.ts'
         ],
 
-        frameworks: ['jasmine', 'chai', 'ineeda', 'karma-typescript'],
+        frameworks: ['jasmine', 'chai', 'karma-typescript'],
         preprocessors: {
             '**/*.ts': ['karma-typescript'],
         },
