@@ -1,5 +1,8 @@
+.nyc_output/
+coverage/
+src/
+test/
 .DS_Store
 .mocharc
 karma.conf.js
 tsconfig.json
-yarn.lock

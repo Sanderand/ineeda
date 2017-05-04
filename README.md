@@ -2,69 +2,99 @@
 
 [![npm version](https://img.shields.io/npm/v/ineeda.svg)](https://img.shields.io/npm/v/ineeda.svg)
 
-Auto-mocking from TypeScript interfaces!
+Auto-mocking from with [Proxies](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Proxy)! Works best with TypeScript, but works just as well with JavaScript!
 
 # Installation:
 
 ```
-npm install ineeda --D
+npm install ineeda --dev
 ```
 
 # Usage:
 
-To get a mock of a concrete class:
+### To get a mock of a concrete class:
 
 ```typescript
-import Hero from './Hero';
+import { Hero } from './Hero';
 
-import ineeda from 'ineeda';
+import { ineeda } from 'ineeda';
 
 let hero: Hero = ineeda<Hero>();
-console.log(hero.age); // 0
-console.log(hero.name); // ''
-console.log(hero.weapon.isMagic); // false
-console.log(hero.weapon.type); // 3
-console.log(hero.weapon.sharpen()); // Error('"Weapon.sharpen" is not implemented.');
+console.log(hero.age); // [IneedaProxy] (truthy!)
+console.log(hero.weapon.isMagic); // [IneedaProxy] (truthy!)
+console.log(hero.weapon.sharpen()); // Error('"sharpen" is not implemented.');
+
+let bonnie: Hero = ineeda<Hero>({ name: 'Bonnie' });
+console.log(bonnie.name); // 'Bonnie'
 ```
 
-To get a mock of a concrete class that is an actual instance of that class:
+### To get a mock of an interface:
 
 ```typescript
-import Hero from './Hero';
+import { IHorse } from './IHorse';
 
-import ineed from 'ineeda';
+import { ineeda } from 'ineeda';
 
-let realHero: Hero = ineeda<Hero>({ instanceof: Hero });
+let horse: IHorse = ineeda<IHorse>();
+horse.hero.weapon.sharpen(); // Error('"sharpen" is not implemented.');
+```
+
+### To get a mock of a concrete class that is an actual instance of that class:
+
+```typescript
+import { Hero } from './Hero';
+
+import { ineeda } from 'ineeda';
+
+let realHero: Hero = ineeda.instanceof<Hero>();
 console.log(realHero instanceof Hero); // true;
 ```
 
-To get a mock of an interface:
+### To get a factory that produces mocks of a concrete class:
 
 ```typescript
-import IHorse from './IHorse';
+import { Hero } from './Hero';
 
-import ineed from 'ineeda';
+import { ineeda, IneedaFactory } from 'ineeda';
 
-let horse: IHorse = ineeda<IHorse>();
-horse.hero.weapon.sharpen(); // Error('"Weapon.sharpen" is not implemented.');
+let heroFactory: IneedaFactory<Hero> = ineeda.factory<Hero>();
+let heroMock: Hero = heroFactory();
 ```
 
-To get a mock of something that has no type information:
+# Extra stuff:
+
+### `ineeda.unproxy`:
+
+Since the result of a call to `ineeda` is a proxy, it will happily pretend to be any kind of object you ask it to be! That can cause some issues, such as when dealing with `Promises` or `Observables`. To get around that, you can use `unproxy`.
+
+First, somewhere in your test setup do something like the following.
+
+```typeScript
+// Prevent Bluebird from thinking ineeda mocks are Promises:
+ineeda.unproxy({
+    when: Promise,
+    values: { then: null }
+});
+
+// Prevent RxJS from thinking ineeda mocks are Observables:
+ineeda.unproxy({
+    when: Observable,
+    values: { schedule: null }
+});
+```
+
+Then, when you need a fake `Promise` or `Observable`:
 
 ```typescript
-// Hero.ts
-import * as Promise from 'bluebird'; // Has no types:
+let mockObject = ineeda<MyObject>();
 
-export default class Hero {
-    // ...
-    holdOut: Promise<any>;
+function looksLikePromise (obj) {
+    return !!obj.then;
 }
 
-// Hero.spec.ts
-import Hero from './Hero';
+console.log(looksLikePromise(mockObject)) // true;
+console.log(looksLikePromise(mockObject.unproxy(Promise))) // false;
 
-import ineed from 'ineeda';
-
-let hero: Hero = ineeda<Hero>({ proxy: true });
-hero.holdOut.then(); // Error('"Hero.holdOut.then" is not implemented.');
+let mockObject = ineeda<MyObject>();
+let myObservable$ = Observable.of(mockObject.unproxy(Observable));
 ```

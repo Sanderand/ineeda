@@ -1,6 +1,6 @@
 {
   "name": "ineeda",
-  "version": "0.6.0-alpha.1",
+  "version": "0.6.0",
   "description": "Create stub objects from TypeScript interfaces!",
   "main": "dist/src/index.js",
   "typings": "dist/src/index.d.ts",
@@ -16,9 +16,6 @@
     "prepublish": "rm -rf dist && npm run build"
   },
   "dependencies": {},
-  "peerDependencies": {
-    "typescript": "^2"
-  },
   "devDependencies": {
     "@types/bluebird": "3.0.37",
     "@types/chai": "3.4.34",
