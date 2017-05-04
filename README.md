@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/ineeda.svg)](https://img.shields.io/npm/v/ineeda.svg)
 
-Auto-mocking from with [Proxies](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Proxy)! Works best with TypeScript, but works just as well with JavaScript!
+Auto-mocking with [Proxies](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Proxy)! Works best with TypeScript, but works just as well with JavaScript!
 
 # Installation:
 
