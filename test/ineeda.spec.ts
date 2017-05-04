@@ -11,17 +11,21 @@ chai.use(sinonChai);
 import * as Promise from 'bluebird';
 import Hero from './types/Hero';
 import IHorse from './types/IHorse';
+import Weapon from './types/Weapon';
 
 // Under test:
-import { ineeda, IneedaFactory, IneedaOptions } from '../src/index';
+import { ineeda, IneedaFactory } from '../src/index';
+
+ineeda.unproxy({
+    values: { restore: null, calledBefore: null }
+})
 
 describe('ineeda:', () => {
     describe('ineeda:', () => {
         let hero: Hero;
 
         beforeEach(() => {
-            let heroFactory: IneedaFactory<Hero> = ineeda.factory<Hero>();
-            hero = heroFactory();
+            hero = ineeda<Hero>();
         });
 
         it('should create a mock of a class', () => {
@@ -31,36 +35,18 @@ describe('ineeda:', () => {
         it('should create a mock of an interface', () => {
             let horse: IHorse = ineeda<IHorse>();
             expect(horse).to.not.be.undefined;
-        })
-
-        it('should set a property: any to an empty object', () => {
-            expect(hero.currentTool).to.deep.equal({});
         });
 
-        it('should set a property: array to an empty array', () => {
-            expect(hero.tools).to.deep.equal([]);
-        });
+        it('should allow you to provide specific values', () => {
+            let hero = ineeda<Hero>({ name: 'bonnie' });
 
-        it('should set a property: boolean to false', () => {
-            expect(hero.isBrave).to.equal(false);
-        });
-
-        it('should set a property: number to 0', () => {
-            expect(hero.age).to.equal(0);
-        });
-
-        it('should set a property: string to an empty string', () => {
-            expect(hero.name).to.equal('');
-        });
-
-        it('should set a getter for a nested complex object', () => {
-            expect(hero.weapon).to.not.be.undefined;
+            expect(hero.name).to.equal('bonnie');
         });
 
         it('should set a stubbed function for a function', () => {
             expect(() => {
                 hero.weapon.sharpen();
-            }).to.throw('"Hero.weapon.sharpen" is not implemented.');
+            }).to.throw('"sharpen" is not implemented.');
         });
 
         it('should allow you to use sinon to stub a function', () => {
@@ -71,31 +57,25 @@ describe('ineeda:', () => {
             expect(hero.weapon.sharpen).to.have.been.called;
         });
 
-        it('should set the lowest value for an Enum', () => {
-            expect(hero.species).to.equal(0);
-            expect(hero.weapon.type).to.equal(3);
+        it('should allow you to use sinon to spy on function', () => {
+            let weapon = ineeda<Weapon>({
+                sharpen: () => {}
+            });
+            sinon.spy(weapon, 'sharpen');
+            weapon.sharpen();
+
+            expect(weapon.sharpen).to.have.been.called;
         });
 
-        it('should throw an error when mocking a value of an unknown type', () => {
-            expect(() => {
-                let promise = ineeda<Promise<any>>();
-            }).to.throw(`
-        Could not mock <Promise>.
-            This probably means there was no type information available for <Promise>.
-            Either add type information, or call \`ineeda<Promise>({ proxy: true });\`
-    `);
-        });
-
-        it('should throw an error when mocking a property of an unknown type', () => {
+        it('should allow you to build up deeply nexted objects', () => {
             let hero = ineeda<Hero>();
 
-            expect(() => {
-                console.log(hero.holdOut);
-            }).to.throw(`
-        Could not mock "holdOut" on <Hero>.
-            This probably means there was no type information available for <Promise>.
-            Either add type information, or call \`ineeda<Hero>({ proxy: true });\`
-    `);
+            sinon.stub(hero.holdOut, 'then').returns(Promise.resolve());
+
+            return hero.holdOut.then()
+            .then(() => {
+                expect(hero.holdOut.then).to.not.be.undefined;
+            });
         });
     });
 
@@ -103,8 +83,7 @@ describe('ineeda:', () => {
         let hero: Hero;
 
         beforeEach(() => {
-            let options: IneedaOptions = { instanceof: Hero }
-            hero = ineeda<Hero>(options);
+            hero = ineeda.instanceof<Hero>(Hero);
         });
 
         it('should create a mock of a class', () => {
@@ -116,31 +95,19 @@ describe('ineeda:', () => {
         });
     });
 
-    describe('ineeda - proxy', () => {
-        let hero: Hero;
+    describe('ineeda - factory:', () => {
+        it('should create a factory', () => {
+            let heroFactory: IneedaFactory<Hero> = ineeda.factory<Hero>();
 
-        beforeEach(() => {
-            let options: IneedaOptions = { proxy: true };
-            hero = ineeda<Hero>(options);
+            expect(heroFactory).to.not.be.undefined;
         });
 
-        it('should return a proxied mock when mocking a value of an unknown type', () => {
-            expect(hero.holdOut).to.not.equal(undefined);
-        });
+        it('should create a factory that creates mock instances when you call it', () => {
+            let heroFactory: IneedaFactory<Hero> = ineeda.factory<Hero>();
 
-        it('should return a proxied function when mocking a function of an unknown type', () => {
-            expect(() => {
-                hero.holdOut.then()
-            }).to.throw('"Hero.holdOut.then" is not implemented.');
-        });
+            let hero: Hero = heroFactory();
 
-        it('should allow you to use sinon to stub a proxied function', () => {
-            sinon.stub(hero.holdOut, 'then').returns(Promise.resolve());
-
-            return hero.holdOut.then()
-            .then(() => {
-                expect(hero.holdOut.then).to.have.been.called;
-            });
+            expect(hero).to.not.be.undefined;
         });
     });
 });

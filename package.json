@@ -1,6 +1,6 @@
 {
   "name": "ineeda",
-  "version": "0.5.2-beta.0",
+  "version": "0.6.0-alpha.1",
   "description": "Create stub objects from TypeScript interfaces!",
   "main": "dist/src/index.js",
   "typings": "dist/src/index.d.ts",
@@ -11,13 +11,11 @@
     "compile": "tsc",
     "test:jest": "jest",
     "test:karma": "karma start karma.conf.js",
-    "test:mocha": "mocha --opts ./.mocharc 'dist/**/*.spec.js'",
+    "test:mocha": "nyc mocha './test/*.spec.ts'",
     "build": "npm run compile && npm run test:jest && npm run test:mocha && npm run test:karma",
     "prepublish": "rm -rf dist && npm run build"
   },
-  "dependencies": {
-    "sorcery": "0.10.0"
-  },
+  "dependencies": {},
   "peerDependencies": {
     "typescript": "^2"
   },
@@ -35,7 +33,6 @@
     "karma": "1.3.0",
     "karma-chai": "0.1.0",
     "karma-chrome-launcher": "2.0.0",
-    "karma-ineeda": "0.3.1-beta.0",
     "karma-jasmine": "1.1.0",
     "karma-typescript": "2.1.6",
     "mocha": "3.2.0",
@@ -44,6 +41,7 @@
     "sinon": "1.17.7",
     "sinon-chai": "2.8.0",
     "ts-jest": "18.0.1",
+    "ts-node": "2.1.0",
     "typescript": "^2"
   },
   "jest": {
@@ -58,5 +56,22 @@
       "\\.(ts)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
     "testRegex": "/test/.*\\.spec\\.ts$"
+  },
+  "nyc": {
+    "include": [
+      "**/*.ts"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "text-summary",
+      "html"
+    ],
+    "sourceMap": true,
+    "instrument": true
   }
 }
