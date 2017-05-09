@@ -1,8 +1,9 @@
 // Dependencies:
 import { IneedaProxy } from './ineeda-proxy';
 import { getUnproxyValues } from './unproxy-values';
+import { Partial } from '../partial';
 
-export function createProxy <T> (values?: any, property?: string): T & IneedaProxy<T> {
+export function createProxy <T> (values?: Partial<T>, property?: string): T & IneedaProxy<T> {
     let resultBase = { hasOwnProperty, unproxy, toString };
     let result = Object.assign(resultBase, getUnproxyValues(), values);
 

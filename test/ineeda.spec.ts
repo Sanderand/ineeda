@@ -43,6 +43,12 @@ describe('ineeda:', () => {
             expect(hero.name).to.equal('bonnie');
         });
 
+        it('should allow you to provide nested specific values', () => {
+            let hero = ineeda<Hero>({ weapon: { strength: 5 } });
+
+            expect(hero.weapon.strength).to.equal(5);
+        });
+
         it('should set a stubbed function for a function', () => {
             expect(() => {
                 hero.weapon.sharpen();
