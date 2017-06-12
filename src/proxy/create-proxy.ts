@@ -4,7 +4,7 @@ import { getUnproxyValues } from './unproxy-values';
 import { Partial } from '../partial';
 
 export function createProxy <T> (values?: Partial<T>, property?: string): T & IneedaProxy<T> {
-    let resultBase = { hasOwnProperty, unproxy, toString };
+    let resultBase = { hasOwnProperty, toJSON, toString, unproxy };
     let result = Object.assign(resultBase, getUnproxyValues(), values);
 
     let proxyBase = property ? function () {} : {};
@@ -46,6 +46,10 @@ export function createProxy <T> (values?: Partial<T>, property?: string): T & In
     function unproxy (key: any): T {
         result = Object.assign({}, getUnproxyValues(key), result);
         return this;
+    }
+
+    function toJSON (): any {
+        return result;
     }
 }
 

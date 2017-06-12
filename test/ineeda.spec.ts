@@ -1,5 +1,6 @@
 // Test Utilities:
 import * as chai from 'chai';
+import * as dedent from 'dedent';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 
@@ -18,7 +19,7 @@ import { ineeda, IneedaFactory } from '../src/index';
 
 ineeda.unproxy({
     values: { restore: null, calledBefore: null }
-})
+});
 
 describe('ineeda:', () => {
     describe('ineeda:', () => {
@@ -82,6 +83,24 @@ describe('ineeda:', () => {
             .then(() => {
                 expect(hero.holdOut.then).to.not.be.undefined;
             });
+        });
+
+        it('should have a `toString` implementation', () => {
+            let hero = ineeda<Hero>();
+
+            expect(hero.toString()).to.equal('[object IneedaMock]');
+        });
+
+        it('should have a `toJSON` implementation', () => {
+            let hero = ineeda<Hero>({ weapon: { strength: 5 } });
+
+            expect(JSON.stringify(hero, null, '    ')).to.equal(dedent(`{
+                "restore": null,
+                "calledBefore": null,
+                "weapon": {
+                    "strength": 5
+                }
+            }`));
         });
     });
 
