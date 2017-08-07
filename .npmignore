@@ -1,6 +1,6 @@
 .nyc_output/
 coverage/
-src/
+dist/test/
 test/
 .DS_Store
 .mocharc
