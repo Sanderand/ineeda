@@ -17,10 +17,6 @@ import Weapon from './types/Weapon';
 // Under test:
 import { ineeda, IneedaFactory } from '../src/index';
 
-ineeda.unproxy({
-    values: { restore: null, calledBefore: null }
-});
-
 describe('ineeda:', () => {
     describe('ineeda:', () => {
         let hero: Hero;
@@ -57,32 +53,58 @@ describe('ineeda:', () => {
         });
 
         it('should allow you to use sinon to stub a function', () => {
+            ineeda.config({
+                unproxy: {
+                    keys: ['restore', 'calledBefore']
+                }
+            });
+
             sinon.stub(hero.weapon, 'sharpen');
 
             hero.weapon.sharpen();
 
             expect(hero.weapon.sharpen).to.have.been.called;
+
+            ineeda.reset();
         });
 
         it('should allow you to use sinon to spy on function', () => {
-            let weapon = ineeda<Weapon>({
-                sharpen: () => {}
+            ineeda.config({
+                unproxy: {
+                    keys: ['restore', 'calledBefore']
+                }
             });
-            sinon.spy(weapon, 'sharpen');
-            weapon.sharpen();
 
+            let weapon = ineeda<Weapon>();
+            sinon.spy(weapon, 'sharpen');
+
+            expect(() => {
+                weapon.sharpen();
+            }).to.throw();
             expect(weapon.sharpen).to.have.been.called;
+
+            ineeda.reset();
         });
 
         it('should allow you to build up deeply nexted objects', () => {
+            ineeda.config({
+                unproxy: {
+                    keys: ['restore', 'calledBefore']
+                }
+            });
+
             let hero = ineeda<Hero>();
 
             sinon.stub(hero.holdOut, 'then').returns(Promise.resolve());
 
-            return hero.holdOut.then()
+            let result = hero.holdOut.then()
             .then(() => {
                 expect(hero.holdOut.then).to.not.be.undefined;
             });
+
+            ineeda.reset();
+
+            return result;
         });
 
         it('should have a `toString` implementation', () => {
@@ -95,8 +117,6 @@ describe('ineeda:', () => {
             let hero = ineeda<Hero>({ weapon: { strength: 5 } });
 
             expect(JSON.stringify(hero, null, '    ')).to.equal(dedent(`{
-                "restore": null,
-                "calledBefore": null,
                 "weapon": {
                     "strength": 5
                 }
@@ -133,6 +153,113 @@ describe('ineeda:', () => {
             let hero: Hero = heroFactory();
 
             expect(hero).to.not.be.undefined;
+        });
+    });
+
+    describe('ineeda - unproxy', () => {
+        it('should let you "unproxy" proxied values globally', () => {
+            ineeda.config({
+                unproxy: {
+                    keys: ['age']
+                }
+            });
+
+            let hero = ineeda<Hero>();
+
+            expect(hero.age).to.equal(null);
+
+            ineeda.reset();
+        });
+
+        it('should let you "unproxy" proxied values on an instance', () => {
+            ineeda.config({
+                unproxy: {
+                    when: Hero,
+                    keys: ['age', 'name']
+                }
+            });
+
+            let hero = ineeda<Hero>().unproxy(Hero);
+
+            expect(hero.age).to.equal(null);
+            expect(hero.name).to.equal(null);
+
+            ineeda.reset();
+        });
+    });
+
+    describe('ineeda - intercept', () => {
+        it('should let you "intercept" proxied values globally', () => {
+            ineeda.config({
+                intercept: value => value + 10
+            });
+
+            let hero = ineeda<Hero>({
+                age: 18
+            });
+
+            expect(hero.age).to.equal(28);
+
+            ineeda.reset();
+        });
+
+        it('should let you "intercept" proxied values on an instance', () => {
+            let hero = ineeda<Hero>({
+                age: 18
+            })
+            .intercept(value => value + 10);
+
+            expect(hero.age).to.equal(28);
+
+            ineeda.reset();
+        });
+
+        it('should let you stub all functions', () => {
+            ineeda.config({
+                intercept: (value, key: string, values, target) => {
+                    if (value instanceof Function) {
+                        target[key] = () => { };
+                        return sinon.stub(target, key, values[key]);
+                    }
+                    return value;
+                },
+                unproxy: {
+                    keys: ['restore', 'calledBefore']
+                }
+            });
+
+            let weapon = ineeda<Weapon>();
+            weapon.sharpen();
+
+            expect(weapon.sharpen).to.have.been.called;
+
+            ineeda.reset();
+        });
+
+        it('should let you stub functions with a given implementation', () => {
+            ineeda.config({
+                unproxy: {
+                    keys: ['restore', 'calledBefore']
+                }
+            });
+
+            let weapon = ineeda<Weapon>({
+                sharpen: () => 5
+            })
+            .intercept((value, key: string, values, target) => {
+                if (value instanceof Function) {
+                    target[key] = () => { };
+                    return sinon.stub(target, key, values[key]);
+                }
+                return value;
+            });
+
+            let result = weapon.sharpen();
+
+            expect(result).to.equal(5);
+            expect(weapon.sharpen).to.have.been.called;
+
+            ineeda.reset();
         });
     });
 });

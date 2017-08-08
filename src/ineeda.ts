@@ -1,10 +1,7 @@
 // Dependencies:
-import { IneedaFactory } from './ineeda-factory';
-import { createProxy } from './proxy/create-proxy';
-import { IneedaProxy } from './proxy/ineeda-proxy';
-import { IneedaUnproxyOptions } from './proxy/ineeda-unproxy-options';
-import { setUnproxyValues } from './proxy/unproxy-values';
-import { Partial } from './partial';
+import { resetConfig, setConfig } from './ineeda-config';
+import { createProxy } from './ineeda-proxy';
+import { IneedaConfigOptions, IneedaFactory, IneedaProxy, Partial } from './ineeda-types';
 
 export function factory <T>(values?: Partial<T>): IneedaFactory<T> {
     let instances: Array<T & IneedaProxy<T>> = [];
@@ -28,6 +25,11 @@ export function ninstanceof <T> (constructor: Function, values?: Partial<T>): T 
     return mock;
 }
 
-export function unproxy (options: IneedaUnproxyOptions): void {
-    setUnproxyValues(options);
+export function config (options?: IneedaConfigOptions): void {
+    setConfig(options || {});
 }
+
+export function reset (): void {
+    resetConfig();
+}
+resetConfig();
