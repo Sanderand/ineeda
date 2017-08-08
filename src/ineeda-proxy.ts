@@ -1,15 +1,16 @@
 // Dependencies:
-import { getInterceptors, getUnproxied } from './ineeda-config';
-import { IneedaInterceptor, IneedaProxy, Partial } from './ineeda-types';
+import { getGlobalInterceptors, getInterceptors, getInterceptorsWithKey } from './ineeda-interceptors';
+import { IneedaInterceptorFunction, IneedaInterceptor, IneedaProxy, NOOP, Partial } from './ineeda-types';
 
-export function createProxy <T> (valuesExternal: Partial<T>, key?: PropertyKey): T & IneedaProxy<T> {
-    let valuesInternal = { hasOwnProperty, intercept, toJSON, toString, unproxy };
-    let values = Object.assign(getUnproxied(), valuesExternal);
+export function createProxy <T> (values: Partial<T>, key?: PropertyKey): T & IneedaProxy<T> {
+    let valuesInternal = { intercept, toJSON, toString };
+    let valuesExternal = Object.assign({}, values);
 
-    let interceptors = getInterceptors();
+    let interceptors: Array<IneedaInterceptorFunction>;
     let intercepted: Array<PropertyKey> = [];
 
-    let proxyBase = key ? function () {} : {};
+    reset();
+    let proxyBase = key ? NOOP : {};
     return new Proxy(proxyBase, { apply, get, getOwnPropertyDescriptor, set });
 
     function apply (): void {
@@ -22,15 +23,15 @@ export function createProxy <T> (valuesExternal: Partial<T>, key?: PropertyKey):
         if (Object.hasOwnProperty.call(valuesInternal, key)) {
             return valuesInternal[key];
         }
-        if (Object.hasOwnProperty.call(values, key)) {
-            return runInterceptors(target, key, values[key]);
+        if (Object.hasOwnProperty.call(valuesExternal, key)) {
+            return _runInterceptors(target, key, valuesExternal[key]);
         }
 
         let obj = {};
         if (key in obj) {
             return obj[key];
         }
-        let func = () => {};
+        let func = NOOP;
         if (key in func) {
             return func[key];
         }
@@ -39,51 +40,51 @@ export function createProxy <T> (valuesExternal: Partial<T>, key?: PropertyKey):
             return null;
         }
 
-        return runInterceptors(target, key, createProxy(values[key], key));
+        return _runInterceptors(target, key, createProxy(valuesExternal[key], key));
     }
 
     function getOwnPropertyDescriptor (target: any, key: PropertyKey): PropertyDescriptor {
         return { configurable: true, enumerable: true, value: get(target, key) };
     }
 
-    function hasOwnProperty (): boolean {
-        return true;
-    }
+    // function hasOwnProperty (): boolean {
+    //     return true;
+    // }
 
-    function intercept (interceptor: IneedaInterceptor): T {
-        interceptors.push(interceptor);
+    function intercept (interceptorOrKey: IneedaInterceptor | any): T {
+        interceptors = interceptors.concat(getInterceptorsWithKey(interceptorOrKey) || getInterceptors(interceptorOrKey));
         return this;
     }
 
-    function runInterceptors (target: any, key: PropertyKey, value: any): void {
-        if (!intercepted.includes(key)) {
-            values[key] = interceptors.reduce((p, n) => {
-                return n(p, key, values, target);
-            }, value);
-            intercepted.push(key);
-        }
-        return values[key];
+    function reset (): T {
+        interceptors = getGlobalInterceptors();
+        return this;
     }
 
     function set (target: any, key: PropertyKey, value: any): boolean {
-        values[key] = value;
+        valuesExternal[key] = value;
         return true;
     }
 
-    function unproxy (key: any): T {
-        values = Object.assign(getUnproxied(key), values);
-        return this;
-    }
-
     function toJSON (): any {
-        return values;
+        return valuesExternal;
     }
 
     function toString (): string {
         return '[object IneedaMock]';
     }
-}
 
-function _isSymbol (key: PropertyKey): boolean {
-    return typeof key === 'symbol' || key === 'inspect';
+    function _isSymbol (key: PropertyKey): boolean {
+        return typeof key === 'symbol' || key === 'inspect';
+    }
+
+    function _runInterceptors (target: any, key: PropertyKey, value: any): void {
+        if (!intercepted.includes(key)) {
+            valuesExternal[key] = interceptors.reduce((p, n) => {
+                return n(p, key, valuesExternal, target);
+            }, value);
+            intercepted.push(key);
+        }
+        return valuesExternal[key];
+    }
 }

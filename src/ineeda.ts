@@ -1,7 +1,7 @@
 // Dependencies:
-import { resetConfig, setConfig } from './ineeda-config';
+import { resetInterceptors, setInterceptors, setInterceptorsWithKey } from './ineeda-interceptors';
 import { createProxy } from './ineeda-proxy';
-import { IneedaConfigOptions, IneedaFactory, IneedaProxy, Partial } from './ineeda-types';
+import { IneedaInterceptor, IneedaFactory, IneedaProxy, Partial } from './ineeda-types';
 
 export function factory <T>(values?: Partial<T>): IneedaFactory<T> {
     let instances: Array<T & IneedaProxy<T>> = [];
@@ -25,11 +25,15 @@ export function ninstanceof <T> (constructor: Function, values?: Partial<T>): T 
     return mock;
 }
 
-export function config (options?: IneedaConfigOptions): void {
-    setConfig(options || {});
+export function intercept (interceptorOrKey: IneedaInterceptor | any, interceptor?: IneedaInterceptor | any): void {
+    if (interceptor) {
+        setInterceptorsWithKey(interceptorOrKey, interceptor);
+    } else {
+        setInterceptors(<IneedaInterceptor>interceptorOrKey);
+    }
 }
 
 export function reset (): void {
-    resetConfig();
+    resetInterceptors();
 }
-resetConfig();
+resetInterceptors();
