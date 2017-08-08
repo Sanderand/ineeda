@@ -63,23 +63,23 @@ let heroMock: Hero = heroFactory();
 
 # Extra stuff:
 
-### `ineeda.unproxy`:
+### `ineeda.config - unproxy`:
 
 Since the result of a call to `ineeda` is a proxy, it will happily pretend to be any kind of object you ask it to be! That can cause some issues, such as when dealing with `Promises` or `Observables`. To get around that, you can use `unproxy`.
 
 First, somewhere in your test setup do something like the following.
 
 ```typeScript
-// Prevent Bluebird from thinking ineeda mocks are Promises:
-ineeda.unproxy({
-    when: Promise,
-    values: { then: null }
-});
-
-// Prevent RxJS from thinking ineeda mocks are Observables:
-ineeda.unproxy({
-    when: Observable,
-    values: { schedule: null }
+ineeda.config(
+    unproxy: [{
+        // Prevent Bluebird from thinking ineeda mocks are Promises:
+        when: Promise,
+        keys: ['then']
+    }, {
+        // Prevent RxJS from thinking ineeda mocks are Observables:
+        when: Observable,
+        keys: ['schedule']
+    }]
 });
 ```
 
@@ -97,4 +97,15 @@ console.log(looksLikePromise(mockObject.unproxy(Promise))) // false;
 
 let mockObject = ineeda<MyObject>();
 let myObservable$ = Observable.of(mockObject.unproxy(Observable));
+```
+
+You can also *globally* unproxy something, by omitting the `when` token:
+
+```typeScript
+ineeda.config(
+    unproxy: [{
+        // Prevent zone.js from thinking ineeda mocks are unconfigurable:
+        keys: ['__zone_symbol__unconfigurables']
+    }]
+});
 ```
