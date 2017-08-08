@@ -107,6 +107,12 @@ describe('ineeda:', () => {
             return result;
         });
 
+        it('should create an object that can handle being cast', () => {
+            expect(() => {
+                new Date(<any>hero);
+            }).to.not.throw();
+        });
+
         it('should have a `toString` implementation', () => {
             let hero = ineeda<Hero>();
 

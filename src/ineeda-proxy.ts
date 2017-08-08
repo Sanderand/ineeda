@@ -35,9 +35,9 @@ export function createProxy <T> (valuesExternal: Partial<T>, key?: PropertyKey):
             return func[key];
         }
 
-        // if (_shouldIgnore(key)) {
-        //     return null;
-        // }
+        if (_isSymbol(key)) {
+            return null;
+        }
 
         return runInterceptors(target, key, createProxy(values[key], key));
     }
@@ -84,6 +84,6 @@ export function createProxy <T> (valuesExternal: Partial<T>, key?: PropertyKey):
     }
 }
 
-function _shouldIgnore (key: PropertyKey): boolean {
-    return key === 'inspect';
+function _isSymbol (key: PropertyKey): boolean {
+    return typeof key === 'symbol' || key === 'inspect';
 }
