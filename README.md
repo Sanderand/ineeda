@@ -63,7 +63,7 @@ let heroMock: Hero = heroFactory();
 
 # Intercepting:
 
-## Overriding proxied values:
+### Overriding proxied values:
 
 Since the result of a call to `ineeda` is a proxy, it will happily pretend to be any kind of object you ask it to be! That can cause some issues, such as when dealing with `Promises` or `Observables`. To get around that, you can use `intercept`.
 
@@ -87,12 +87,12 @@ Remembering which properties need to be intercepted can be a pain, and rather er
 
 ```typescript
 // Prevent Bluebird from thinking ineeda mocks are Promises:
-ineeda.intercept(Promise, {
+ineeda.intercept<Promise<any>>(Promise, {
     then: null
 });
 
 // Prevent RxJS from thinking ineeda mocks are Observables:
-ineeda.intercept(Observable, {
+ineeda.intercept<Observable<any>>(Observable, {
     schedule: null
 });
 ```
@@ -122,7 +122,7 @@ ineeda.intercept({
 });
 ```
 
-## Adding behaviour to proxied values:
+### Adding behaviour to proxied values:
 
 `intercept` can also be used to augment the behaviour of all mocks. One example might be to make every mocked function a `spy`.
 

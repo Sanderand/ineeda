@@ -221,7 +221,7 @@ describe('ineeda:', () => {
             let weapon = ineeda<Weapon>({
                 sharpen: () => 5
             })
-            .intercept((value, key: string, values, target) => {
+            .intercept((value, key, values, target) => {
                 if (value instanceof Function) {
                     target[key] = () => { };
                     return sinon.stub(target, key, values[key]);
@@ -238,11 +238,11 @@ describe('ineeda:', () => {
         });
 
         it('should let you use a key to stub pre-configured values', () => {
-            ineeda.intercept(Promise, {
+            ineeda.intercept<Promise<any>>(Promise, {
                 then: null
             });
 
-            let promise = ineeda<Promise<void>>().intercept(Promise);
+            let promise = ineeda<Promise<any>>().intercept(Promise);
 
             expect(promise.then).to.equal(null);
 

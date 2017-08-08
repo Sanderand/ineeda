@@ -1,9 +1,9 @@
 // Dependencies:
 import { resetInterceptors, setInterceptors, setInterceptorsWithKey } from './ineeda-interceptors';
 import { createProxy } from './ineeda-proxy';
-import { IneedaInterceptor, IneedaFactory, IneedaProxy, Partial } from './ineeda-types';
+import { IneedaInterceptor, IneedaFactory, IneedaProxy, RecursivePartial } from './ineeda-types';
 
-export function factory <T>(values?: Partial<T>): IneedaFactory<T> {
+export function factory <T> (values?: RecursivePartial<T>): IneedaFactory<T> {
     let instances: Array<T & IneedaProxy<T>> = [];
     let factory: IneedaFactory<T> = function ineedaFactory (): T & IneedaProxy<T> {
         let mock = instance<T>(values);
@@ -15,21 +15,21 @@ export function factory <T>(values?: Partial<T>): IneedaFactory<T> {
     return factory;
 }
 
-export function instance <T> (values?: Partial<T>): T & IneedaProxy<T> {
+export function instance <T> (values?: RecursivePartial<T>): T & IneedaProxy<T> {
     return createProxy<T>(values);
 }
 
-export function ninstanceof <T> (constructor: Function, values?: Partial<T>): T & IneedaProxy<T> {
+export function ninstanceof <T> (constructor: Function, values?: RecursivePartial<T>): T & IneedaProxy<T> {
     let mock = instance<T>(values);
     Object.setPrototypeOf(mock, constructor.prototype);
     return mock;
 }
 
-export function intercept (interceptorOrKey: IneedaInterceptor | any, interceptor?: IneedaInterceptor | any): void {
+export function intercept <T> (interceptorOrKey: IneedaInterceptor<T> | any, interceptor?: IneedaInterceptor<T>): void {
     if (interceptor) {
-        setInterceptorsWithKey(interceptorOrKey, interceptor);
+        setInterceptorsWithKey<T>(<any>interceptorOrKey, interceptor);
     } else {
-        setInterceptors(<IneedaInterceptor>interceptorOrKey);
+        setInterceptors(<IneedaInterceptor<T>>interceptorOrKey);
     }
 }
 
