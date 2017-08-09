@@ -11,7 +11,7 @@ export function createProxy <T, K extends IneedaKey<T>> (valuesExternal: Partial
 
     reset();
     let proxyBase = key ? NOOP : {};
-    return new Proxy(<any>proxyBase, { apply, get, getOwnPropertyDescriptor, set });
+    return new Proxy(<any>proxyBase, { apply, get, getOwnPropertyDescriptor, ownKeys, set });
 
     function apply (): void {
         throw new Error(`
@@ -26,23 +26,20 @@ export function createProxy <T, K extends IneedaKey<T>> (valuesExternal: Partial
         if (_isExternalKey(key)) {
             return _runInterceptors(target, key, valuesExternal[key]);
         }
-
-        if (_isFunctionKey(key)) {
+        if (_isObjectKey(key) || _isSymbol(key)) {
             return {}[key];
         }
         if (_isFunctionKey(key)) {
             return NOOP[key];
         }
 
-        if (_isSymbol(key)) {
-            return null;
-        }
-
         return _runInterceptors(target, <K>key, createProxy<K, IneedaKey<K>>(null, key));
     }
 
     function getOwnPropertyDescriptor (target: T, key: keyof T): PropertyDescriptor {
-        return { configurable: true, enumerable: true, value: get(target, key) };
+        let descriptor = Object.getOwnPropertyDescriptor(target, key) || { configurable: true, enumerable: true };
+        descriptor.value = get(target, key);
+        return descriptor;
     }
 
     function hasOwnProperty (): boolean {
@@ -56,6 +53,10 @@ export function createProxy <T, K extends IneedaKey<T>> (valuesExternal: Partial
             interceptors = interceptors.concat(getInterceptors<T>(<IneedaInterceptor<T>>interceptorOrToken));
         }
         return this;
+    }
+
+    function ownKeys (): Array<string> {
+        return ['prototype'].concat(Object.keys(valuesExternal));
     }
 
     function reset (): T {

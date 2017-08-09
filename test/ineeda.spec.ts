@@ -134,6 +134,14 @@ describe('ineeda:', () => {
                 }
             }`));
         });
+
+        it('should work with Object.keys', () => {
+            let hero = ineeda<Hero>({
+                weapon: ineeda<Weapon>()
+            });
+
+            expect(Object.keys(hero)).to.deep.equal(['prototype', 'weapon']);
+        });
     });
 
     describe('ineeda - instanceof:', () => {
