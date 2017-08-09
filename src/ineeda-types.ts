@@ -1,6 +1,10 @@
 /* istanbul ignore next */
 export const NOOP = function () {};
 
+export type Constructable<T> = {
+    new(...args: any[]): T
+}
+
 export type RecursivePartial<T> = {
     [P in keyof T]?: RecursivePartial<T[P]>
 }
@@ -24,7 +28,7 @@ export interface IneedaFactory <T> {
 export interface IneedaApi {
    <T> (values?: RecursivePartial<T>): T & IneedaProxy<T>;
    factory <T> (values?: RecursivePartial<T>): IneedaFactory<T & IneedaProxy<T>>;
-   instanceof <T> (constructor: Function, values?: RecursivePartial<T>): T & IneedaProxy<T>;
+   instanceof <T> (constructor: Constructable<T>, values?: RecursivePartial<T>): T & IneedaProxy<T>;
    intercept <T> (interceptorOrKey: IneedaInterceptor<T>, inteceptor?: IneedaInterceptor<T>): void;
    reset (): void;
 }

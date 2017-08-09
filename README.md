@@ -87,14 +87,10 @@ Remembering which properties need to be intercepted can be a pain, and rather er
 
 ```typescript
 // Prevent Bluebird from thinking ineeda mocks are Promises:
-ineeda.intercept<Promise<any>>(Promise, {
-    then: null
-});
+ineeda.intercept<Promise<any>>(Promise, { then: null });
 
-// Prevent RxJS from thinking ineeda mocks are Observables:
-ineeda.intercept<Observable<any>>(Observable, {
-    schedule: null
-});
+// Prevent RxJS from thinking ineeda mocks are Schedulers:
+ineeda.intercept<Scheduler>(Observable, { schedule: null });
 ```
 
 Then later, in your tests, you could do the following:
