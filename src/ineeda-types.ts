@@ -2,20 +2,21 @@
 export const NOOP = function () {};
 
 export type Constructable<T> = {
-    new(...args: any[]): T
+    new (...args: Array<any>): T
 }
 
-export type RecursivePartial<T> = {
-    [P in keyof T]?: RecursivePartial<T[P]>
-}
+export type IneedaKey<T> = keyof T | keyof IneedaProxy<T> | keyof Object | keyof Function;
 
-export type IneedaInterceptorFunction<T, K extends keyof T> = (value?: T[K], key?: K, values?: RecursivePartial<T>, target?: T) => any;
-export type IneedaInterceptor<T> = IneedaInterceptorFunction<T, keyof T> | RecursivePartial<T>;
+export type IneedaInterceptorToken = {};
+export type IneedaInterceptorFunction<T, K extends keyof T> = (value?: T[K], key?: K, values?: Partial<T>, target?: T) => any;
+export type IneedaInterceptor<T> = IneedaInterceptorFunction<T, keyof T> | Partial<T>;
+export type IneedaInterceptorOrToken<T> = IneedaInterceptor<T> | IneedaInterceptorToken;
 
 export interface IneedaProxy<T> {
-    intercept (interceptorOrKey: IneedaInterceptor<T>): T;
+    hasOwnProperty (): boolean;
+    intercept (interceptor: IneedaInterceptorOrToken<T>): T;
     reset (): T;
-    toJSON (): RecursivePartial<T>;
+    toJSON (): Partial<T>;
     toString (): string;
 }
 
@@ -26,9 +27,9 @@ export interface IneedaFactory <T> {
 }
 
 export interface IneedaApi {
-   <T> (values?: RecursivePartial<T>): T & IneedaProxy<T>;
-   factory <T> (values?: RecursivePartial<T>): IneedaFactory<T & IneedaProxy<T>>;
-   instanceof <T> (constructor: Constructable<T>, values?: RecursivePartial<T>): T & IneedaProxy<T>;
-   intercept <T> (interceptorOrKey: IneedaInterceptor<T>, inteceptor?: IneedaInterceptor<T>): void;
+   <T> (values?: Partial<T>): T & IneedaProxy<T>;
+   factory <T> (values?: Partial<T>): IneedaFactory<T & IneedaProxy<T>>;
+   instanceof <T> (constructor: Constructable<T>, values?: Partial<T>): T & IneedaProxy<T>;
+   intercept <T> (interceptorOrToken: IneedaInterceptorOrToken<T>, interceptor?: IneedaInterceptor<T>): void;
    reset (): void;
 }

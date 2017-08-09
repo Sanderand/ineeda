@@ -37,7 +37,11 @@ describe('ineeda:', () => {
         });
 
         it('should allow you to provide nested specific values', () => {
-            let hero = ineeda<Hero>({ weapon: { strength: 5 } });
+            let hero = ineeda<Hero>({
+                weapon: ineeda<Weapon>({
+                    strength: 5
+                })
+            });
 
             expect(hero.weapon.strength).to.equal(5);
         });
@@ -118,7 +122,11 @@ describe('ineeda:', () => {
         });
 
         it('should have a `toJSON` implementation', () => {
-            let hero = ineeda<Hero>({ weapon: { strength: 5 } });
+            let hero = ineeda<Hero>({
+                weapon: ineeda<Weapon>({
+                    strength: 5
+                })
+            });
 
             expect(JSON.stringify(hero, null, '    ')).to.equal(dedent(`{
                 "weapon": {
@@ -238,9 +246,7 @@ describe('ineeda:', () => {
         });
 
         it('should let you use a key to stub pre-configured values', () => {
-            ineeda.intercept<Promise<any>>(Promise, {
-                then: null
-            });
+            ineeda.intercept<Promise<any>>(Promise, { then: null });
 
             let promise = ineeda<Promise<any>>().intercept(Promise);
 

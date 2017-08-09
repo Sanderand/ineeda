@@ -1,9 +1,9 @@
 // Dependencies:
-import { IneedaInterceptorFunction, IneedaInterceptor } from './ineeda-types';
+import { IneedaInterceptor, IneedaInterceptorFunction, IneedaInterceptorToken  } from './ineeda-types';
 
 // Constants:
 let INTERCEPTORS: Array<IneedaInterceptorFunction<any, keyof any>> = [];
-let INTERCEPTORS_WITH_KEYS: Map<any, Array<IneedaInterceptorFunction<any, keyof any>>> = new Map();
+let INTERCEPTORS_WITH_TOKEN: Map<IneedaInterceptorToken, Array<IneedaInterceptorFunction<any, keyof any>>> = new Map();
 
 export function getGlobalInterceptors <T>(): Array<IneedaInterceptorFunction<T, keyof T>> {
     return <Array<IneedaInterceptorFunction<T, keyof T>>>INTERCEPTORS;
@@ -26,19 +26,19 @@ export function getInterceptors <T>(interceptor: IneedaInterceptor<T>): Array<In
     return interceptors;
 }
 
-export function getInterceptorsWithKey <T>(key: any): Array<IneedaInterceptorFunction<T, keyof T>> {
-    return <Array<IneedaInterceptorFunction<T, keyof T>>>INTERCEPTORS_WITH_KEYS.get(key);
+export function getInterceptorsForToken <T>(token: IneedaInterceptorToken): Array<IneedaInterceptorFunction<T, keyof T>> {
+    return <Array<IneedaInterceptorFunction<T, keyof T>>>INTERCEPTORS_WITH_TOKEN.get(token);
 }
 
 export function resetInterceptors (): void {
     INTERCEPTORS.length = 0;
-    INTERCEPTORS_WITH_KEYS.clear();
+    INTERCEPTORS_WITH_TOKEN.clear();
 }
 
 export function setInterceptors <T>(interceptor: IneedaInterceptor<T>): void {
     INTERCEPTORS = INTERCEPTORS.concat(getInterceptors(interceptor));
 }
 
-export function setInterceptorsWithKey <T>(key: any, interceptor: IneedaInterceptor<T>): void {
-    INTERCEPTORS_WITH_KEYS.set(key, getInterceptors(interceptor));
+export function setInterceptorsForToken <T>(token: IneedaInterceptorToken, interceptor: IneedaInterceptor<T>): void {
+    INTERCEPTORS_WITH_TOKEN.set(token, getInterceptors(interceptor));
 }

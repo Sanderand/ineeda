@@ -1,17 +1,17 @@
 // Dependencies:
-import { getGlobalInterceptors, getInterceptors, getInterceptorsWithKey } from './ineeda-interceptors';
-import { IneedaInterceptorFunction, IneedaInterceptor, IneedaProxy, NOOP, RecursivePartial } from './ineeda-types';
+import { getGlobalInterceptors, getInterceptors, getInterceptorsForToken } from './ineeda-interceptors';
+import { IneedaInterceptor, IneedaInterceptorFunction, IneedaInterceptorOrToken, IneedaInterceptorToken, IneedaKey, IneedaProxy, NOOP } from './ineeda-types';
 
-export function createProxy <T> (valuesExternal: RecursivePartial<T>, key?: keyof T | keyof IneedaProxy<T>): T & IneedaProxy<T> {
-    valuesExternal = valuesExternal || <RecursivePartial<T>>{};
-    let valuesInternal: IneedaProxy<T> = { intercept, reset, toJSON, toString };
+export function createProxy <T, K extends IneedaKey<T>> (valuesExternal: Partial<T>, key?: IneedaKey<T>): T & IneedaProxy<T> {
+    valuesExternal = valuesExternal || <Partial<T>>{};
+    let valuesInternal: IneedaProxy<T> = { hasOwnProperty, intercept, reset, toJSON, toString };
 
     let interceptors: Array<IneedaInterceptorFunction<T, keyof T>>;
-    let intercepted: Array<keyof T> = [];
+    let intercepted: Array<IneedaKey<T>> = [];
 
     reset();
     let proxyBase = key ? NOOP : {};
-    return new Proxy(proxyBase, { apply, get, getOwnPropertyDescriptor, set });
+    return new Proxy(<any>proxyBase, { apply, get, getOwnPropertyDescriptor, set });
 
     function apply (): void {
         throw new Error(`
@@ -19,7 +19,7 @@ export function createProxy <T> (valuesExternal: RecursivePartial<T>, key?: keyo
         `);
     }
 
-    function get (target: any, key: keyof T | keyof IneedaProxy<T>): any {
+    function get <K extends keyof T>(target: T, key: IneedaKey<T>): any {
         if (_isInternalKey(key)) {
             return valuesInternal[key];
         }
@@ -27,32 +27,34 @@ export function createProxy <T> (valuesExternal: RecursivePartial<T>, key?: keyo
             return _runInterceptors(target, key, valuesExternal[key]);
         }
 
-        let obj = {};
-        if (key in obj) {
-            return obj[<keyof Object>key];
+        if (_isFunctionKey(key)) {
+            return {}[key];
         }
-        let func = NOOP;
-        if (key in func) {
-            return func[<keyof Function>key];
+        if (_isFunctionKey(key)) {
+            return NOOP[key];
         }
 
         if (_isSymbol(key)) {
             return null;
         }
 
-        return _runInterceptors(target, key, createProxy(valuesExternal[key], key));
+        return _runInterceptors(target, <K>key, createProxy<K, IneedaKey<K>>(null, key));
     }
 
-    function getOwnPropertyDescriptor (target: any, key: keyof T): PropertyDescriptor {
+    function getOwnPropertyDescriptor (target: T, key: keyof T): PropertyDescriptor {
         return { configurable: true, enumerable: true, value: get(target, key) };
     }
 
-    // function hasOwnProperty (): boolean {
-    //     return true;
-    // }
+    function hasOwnProperty (): boolean {
+        return true;
+    }
 
-    function intercept (interceptorOrKey: IneedaInterceptor<T> | any): T {
-        interceptors = interceptors.concat(getInterceptorsWithKey<T>(<any>interceptorOrKey) || getInterceptors(<IneedaInterceptor<T>>interceptorOrKey));
+    function intercept (interceptorOrToken: IneedaInterceptorOrToken<T>): T {
+        if (_hasInterceptorForToken(interceptorOrToken)) {
+            interceptors = interceptors.concat(getInterceptorsForToken<T>(interceptorOrToken));
+        } else {
+            interceptors = interceptors.concat(getInterceptors<T>(<IneedaInterceptor<T>>interceptorOrToken));
+        }
         return this;
     }
 
@@ -61,12 +63,12 @@ export function createProxy <T> (valuesExternal: RecursivePartial<T>, key?: keyo
         return this;
     }
 
-    function set (target: any, key: keyof T, value: any): boolean {
+    function set (target: T, key: keyof T, value: any): boolean {
         valuesExternal[key] = value;
         return true;
     }
 
-    function toJSON (): any {
+    function toJSON (): Partial<T> {
         return valuesExternal;
     }
 
@@ -74,19 +76,31 @@ export function createProxy <T> (valuesExternal: RecursivePartial<T>, key?: keyo
         return '[object IneedaMock]';
     }
 
-    function _isExternalKey (key: keyof T | keyof IneedaProxy<T>): key is keyof T {
+    function _hasInterceptorForToken (token: IneedaInterceptorOrToken<T>): token is IneedaInterceptorToken {
+        return !!getInterceptorsForToken<T>(token);
+    }
+
+    function _isFunctionKey (key: IneedaKey<T>): key is keyof Function {
+        return key in NOOP;
+    }
+
+    function _isExternalKey (key: IneedaKey<T>): key is keyof T {
         return Object.hasOwnProperty.call(valuesExternal, key);
     }
 
-    function _isInternalKey (key: keyof T | keyof IneedaProxy<T>): key is keyof IneedaProxy<T> {
+    function _isInternalKey (key: IneedaKey<T>): key is keyof IneedaProxy<T> {
         return Object.hasOwnProperty.call(valuesInternal, key);
+    }
+
+    function _isObjectKey (key: IneedaKey<T>): key is keyof Object {
+        return key in {};
     }
 
     function _isSymbol (key: PropertyKey): boolean {
         return typeof key === 'symbol' || key === 'inspect';
     }
 
-    function _runInterceptors (target: any, key: keyof T, value: any): any {
+    function _runInterceptors <K extends keyof T> (target: T, key: K, value: any): any {
         if (!intercepted.includes(key)) {
             valuesExternal[key] = interceptors.reduce((p, n) => {
                 return n(p, key, valuesExternal, target);
