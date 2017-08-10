@@ -7,7 +7,11 @@ Auto-mocking with [Proxies](https://developer.mozilla.org/en/docs/Web/JavaScript
 # Installation:
 
 ```
-npm install ineeda --dev
+npm install ineeda --save-dev
+```
+or 
+```
+yarn add ineeda --dev
 ```
 
 # Mocking:
@@ -46,7 +50,7 @@ import { Hero } from './Hero';
 
 import { ineeda } from 'ineeda';
 
-let realHero: Hero = ineeda.instanceof<Hero>();
+let realHero: Hero = ineeda.instanceof<Hero>(Hero);
 console.log(realHero instanceof Hero); // true;
 ```
 
