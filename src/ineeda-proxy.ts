@@ -2,6 +2,9 @@
 import { getGlobalInterceptors, getInterceptors, getInterceptorsForToken } from './ineeda-interceptors';
 import { IneedaInterceptor, IneedaInterceptorFunction, IneedaInterceptorOrToken, IneedaInterceptorToken, IneedaKey, IneedaProxy, NOOP } from './ineeda-types';
 
+// Constants:
+const DEFAULT_PROPERTY_DESCRIPTION: PropertyDescriptor = { configurable: true, enumerable: true, writable: true };
+
 export function createProxy <T, K extends IneedaKey<T>> (valuesExternal: Partial<T>, key?: IneedaKey<T>): T & IneedaProxy<T> {
     valuesExternal = valuesExternal || <Partial<T>>{};
     let valuesInternal: IneedaProxy<T> = { hasOwnProperty, intercept, reset, toJSON, toString };
@@ -37,7 +40,7 @@ export function createProxy <T, K extends IneedaKey<T>> (valuesExternal: Partial
     }
 
     function getOwnPropertyDescriptor (target: T, key: keyof T): PropertyDescriptor {
-        let descriptor = Object.getOwnPropertyDescriptor(target, key) || { configurable: true, enumerable: true };
+        let descriptor = Object.getOwnPropertyDescriptor(target, key) || DEFAULT_PROPERTY_DESCRIPTION;
         descriptor.value = get(target, key);
         return descriptor;
     }
