@@ -1,6 +1,6 @@
 // Dependencies:
+import { factory, instance, intercept, ninstanceof, reset } from './ineeda';
 import { IneedaApi } from './ineeda-types';
-import { factory, instance, ninstanceof, intercept, reset } from './ineeda';
 
 let api = <IneedaApi>instance;
 api.factory = factory;

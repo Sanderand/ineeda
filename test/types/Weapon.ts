@@ -1,8 +1,10 @@
 export default class Weapon {
-    sharpness: number;
-    strength: number;
-    isMagic: boolean;
-    isBlunt: boolean;
+    public sharpness: number;
+    public strength: number;
+    public isMagic: boolean;
+    public isBlunt: boolean;
 
-    sharpen (): void { }
+    /* tslint:disable:no-empty */
+    public sharpen (): void { }
+    /* tslint:enable:no-empty */
 }

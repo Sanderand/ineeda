@@ -3,7 +3,7 @@ import Hero from './Hero';
 
 interface IHorse {
     name: string;
-    hero: Hero
+    hero: Hero;
 }
 
 export default IHorse;

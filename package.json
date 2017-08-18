@@ -9,10 +9,16 @@
   "license": "MIT",
   "scripts": {
     "compile": "tsc",
+    "lint": "npm run lint:src && npm run lint:test",
+    "lint:src": "tslint -c tslint.json 'src/**/*.ts'",
+    "lint:test": "tslint -c tslint.json 'test/**/*.ts'",
+    "lint:fix": "npm run lint:src:fix && npm run lint:test",
+    "lint:src:fix": "tslint -c tslint.json 'src/**/*.ts' --fix",
+    "lint:test:fix": "tslint -c tslint.json 'test/**/*.ts' --fix",
     "test:jest": "jest",
     "test:karma": "karma start karma.conf.js",
     "test:mocha": "nyc mocha './test/*.spec.ts'",
-    "build": "npm run compile && npm run test:jest && npm run test:karma && npm run test:mocha",
+    "build": "npm run compile && npm run lint && npm run test:jest && npm run test:karma && npm run test:mocha",
     "prepublish": "rm -rf dist && npm run build"
   },
   "dependencies": {},
@@ -43,6 +49,7 @@
     "sinon-chai": "2.8.0",
     "ts-jest": "18.0.1",
     "ts-node": "2.1.0",
+    "tslint": "^5.6.0",
     "typescript": "^2"
   },
   "jest": {
@@ -72,6 +79,7 @@
       "text-summary",
       "html"
     ],
+    "report-dir": "./reports/coverage/",
     "sourceMap": true,
     "instrument": true
   }

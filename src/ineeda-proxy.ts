@@ -22,7 +22,7 @@ export function createProxy <T, K extends IneedaKey<T>> (valuesExternal: Partial
         `);
     }
 
-    function get <K extends keyof T>(target: T, key: IneedaKey<T>): any {
+    function get <K extends keyof T> (target: T, key: IneedaKey<T>): any {
         if (_isInternalKey(key)) {
             return valuesInternal[key];
         }
