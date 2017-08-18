@@ -22,12 +22,12 @@ describe('ineeda:', () => {
         it('should create a mock of a class', () => {
             let hero = ineeda<Hero>();
 
-            expect(hero).to.not.be.undefined;
+            expect(hero).to.not.equal(undefined);
         });
 
         it('should create a mock of an interface', () => {
             let horse: IHorse = ineeda<IHorse>();
-            expect(horse).to.not.be.undefined;
+            expect(horse).to.not.equal(undefined);
         });
 
         it('should allow you to provide specific values', () => {
@@ -56,8 +56,8 @@ describe('ineeda:', () => {
 
         it('should allow you to use sinon to stub a function', () => {
             ineeda.intercept({
-                restore: null,
-                calledBefore: null
+                calledBefore: null,
+                restore: null
             });
 
             let hero = ineeda<Hero>();
@@ -65,15 +65,15 @@ describe('ineeda:', () => {
 
             hero.weapon.sharpen();
 
-            expect(hero.weapon.sharpen).to.have.been.called;
+            expect(hero.weapon.sharpen).to.have.callCount(1);
 
             ineeda.reset();
         });
 
         it('should allow you to use sinon to spy on function', () => {
             ineeda.intercept({
-                restore: null,
-                calledBefore: null
+                calledBefore: null,
+                restore: null
             });
 
             let weapon = ineeda<Weapon>();
@@ -82,15 +82,15 @@ describe('ineeda:', () => {
             expect(() => {
                 weapon.sharpen();
             }).to.throw();
-            expect(weapon.sharpen).to.have.been.called;
+            expect(weapon.sharpen).to.have.callCount(1);
 
             ineeda.reset();
         });
 
         it('should allow you to build up deeply nexted objects', () => {
             ineeda.intercept({
-                restore: null,
-                calledBefore: null
+                calledBefore: null,
+                restore: null
             });
 
             let hero = ineeda<Hero>();
@@ -99,7 +99,7 @@ describe('ineeda:', () => {
 
             let result = hero.holdOut.then()
             .then(() => {
-                expect(hero.holdOut.then).to.not.be.undefined;
+                expect(hero.holdOut.then).to.not.equal(undefined);
             });
 
             ineeda.reset();
@@ -110,9 +110,7 @@ describe('ineeda:', () => {
         it('should create an object that can handle being cast', () => {
             let hero = ineeda<Hero>();
 
-            expect(() => {
-                new Date(<any>hero);
-            }).to.not.throw();
+            expect(() => new Date(<any>hero)).to.not.throw();
         });
 
         it('should have a `toString` implementation', () => {
@@ -148,7 +146,7 @@ describe('ineeda:', () => {
         it('should create a mock of a class', () => {
             let hero = ineeda.instanceof<Hero>(Hero);
 
-            expect(hero).to.not.be.undefined;
+            expect(hero).to.not.equal(undefined);
         });
 
         it('should be an actual instance of the class', () => {
@@ -162,7 +160,7 @@ describe('ineeda:', () => {
         it('should create a factory', () => {
             let heroFactory: IneedaFactory<Hero> = ineeda.factory<Hero>();
 
-            expect(heroFactory).to.not.be.undefined;
+            expect(heroFactory).to.not.equal(undefined);
         });
 
         it('should create a factory that creates mock instances when you call it', () => {
@@ -170,7 +168,7 @@ describe('ineeda:', () => {
 
             let hero: Hero = heroFactory();
 
-            expect(hero).to.not.be.undefined;
+            expect(hero).to.not.equal(undefined);
         });
 
         it('should let you access instances made by the factory', () => {
@@ -209,12 +207,14 @@ describe('ineeda:', () => {
 
         it('should let you replace all functions with a stub', () => {
             ineeda.intercept({
-                restore: null,
-                calledBefore: null
+                calledBefore: null,
+                restore: null
             });
             ineeda.intercept((value, key: string, values, target) => {
                 if (value instanceof Function) {
+                    /* tslint:disable:no-empty */
                     target[key] = () => { };
+                    /* tslint:enable:no-empty */
                     return sinon.stub(target, key, values[key]);
                 }
                 return value;
@@ -223,15 +223,15 @@ describe('ineeda:', () => {
             let weapon = ineeda<Weapon>();
             weapon.sharpen();
 
-            expect(weapon.sharpen).to.have.been.called;
+            expect(weapon.sharpen).to.have.callCount(1);
 
             ineeda.reset();
         });
 
         it('should let you replace all functions with a mock implementation', () => {
             ineeda.intercept({
-                restore: null,
-                calledBefore: null
+                calledBefore: null,
+                restore: null
             });
 
             let weapon = ineeda<Weapon>({
@@ -239,7 +239,9 @@ describe('ineeda:', () => {
             })
             .intercept((value, key, values, target) => {
                 if (value instanceof Function) {
+                    /* tslint:disable:no-empty */
                     target[key] = () => { };
+                    /* tslint:enable:no-empty */
                     return sinon.stub(target, key, values[key]);
                 }
                 return value;
@@ -248,7 +250,7 @@ describe('ineeda:', () => {
             let result = weapon.sharpen();
 
             expect(result).to.equal(5);
-            expect(weapon.sharpen).to.have.been.called;
+            expect(weapon.sharpen).to.have.callCount(1);
 
             ineeda.reset();
         });

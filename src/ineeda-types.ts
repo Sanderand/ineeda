@@ -1,9 +1,11 @@
 /* istanbul ignore next */
-export const NOOP = function () {};
+/* tslint:disable:no-empty */
+export const NOOP = () => {};
+/* tslint:enable:no-empty */
 
 export type Constructable<T> = {
     new (...args: Array<any>): T
-}
+};
 
 export type IneedaKey<T> = keyof T | keyof IneedaProxy<T> | keyof Object | keyof Function;
 
@@ -21,9 +23,9 @@ export interface IneedaProxy<T> {
 }
 
 export interface IneedaFactory <T> {
+    instances?: Array<T & IneedaProxy<T>>;
     (): T & IneedaProxy<T>;
     getLatest? (): T & IneedaProxy<T>;
-    instances?: Array<T & IneedaProxy<T>>;
 }
 
 export interface IneedaApi {

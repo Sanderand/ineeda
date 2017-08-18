@@ -6,12 +6,12 @@ import { Observable } from 'rxjs/Observable';
 import Weapon from './Weapon';
 
 export default class Hero {
-    currentTool: any;
-    tools: Array<any>;
-    isBrave: boolean;
-    age: number;
-    name: string;
-    weapon: Weapon;
-    holdOut: Promise<any>;
-    victories$: Observable<number>;
+    public currentTool: any;
+    public tools: Array<any>;
+    public isBrave: boolean;
+    public age: number;
+    public name: string;
+    public weapon: Weapon;
+    public holdOut: Promise<any>;
+    public victories$: Observable<number>;
 }
