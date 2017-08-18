@@ -78,7 +78,8 @@
     ],
     "reporter": [
       "text-summary",
-      "html"
+      "html",
+      "lcov"
     ],
     "report-dir": "./reports/coverage/",
     "sourceMap": true,
