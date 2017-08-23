@@ -140,6 +140,13 @@ describe('ineeda:', () => {
 
             expect(Object.keys(hero)).to.deep.equal(['prototype', 'weapon']);
         });
+
+        it('should work with Array.from', () => {
+            let arraylike = ineeda<ArrayLike<number>>([2, 3, 4, 5]);
+
+            expect(Array.from(arraylike)).to.deep.equal([2, 3, 4, 5]);
+            expect(Array.isArray(Array.from(arraylike))).to.equal(true);
+        });
     });
 
     describe('ineeda - instanceof:', () => {
