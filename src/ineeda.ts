@@ -6,7 +6,8 @@ import { Constructable, IneedaFactory, IneedaInterceptor, IneedaInterceptorOrTok
 export function factory <T> (values?: Partial<T>): IneedaFactory<T> {
     let instances: Array<T & IneedaProxy<T>> = [];
     let factory: IneedaFactory<T> = function ineedaFactory (): T & IneedaProxy<T> {
-        let mock = instance<T>(values);
+        let seed = Object.assign({}, values);
+        let mock = instance<T>(seed);
         instances.push(mock);
         return mock;
     };

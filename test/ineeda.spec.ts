@@ -177,6 +177,32 @@ describe('ineeda:', () => {
 
             expect(hero).to.not.equal(undefined);
         });
+        
+        it('should not share state between mock instances', () => {
+            let heroFactory: IneedaFactory<Hero> = ineeda.factory<Hero>();
+
+            let hero1 = heroFactory();
+            let hero2 = heroFactory();
+
+            hero1.age = 100;
+            hero2.age = 200;
+
+            expect(hero1.age).to.equal(100);
+            expect(hero2.age).to.equal(200);
+        });
+
+        it('should not share state between configured mock instances', () => {
+            let heroFactory: IneedaFactory<Hero> = ineeda.factory<Hero>({ name: 'Hercules' });
+
+            let hero1 = heroFactory();
+            let hero2 = heroFactory();
+
+            hero1.age = 100;
+            hero2.age = 200;
+
+            expect(hero1.age).to.equal(100);
+            expect(hero2.age).to.equal(200);
+        });
 
         it('should let you access instances made by the factory', () => {
             let heroFactory: IneedaFactory<Hero> = ineeda.factory<Hero>();
