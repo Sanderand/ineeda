@@ -177,7 +177,7 @@ describe('ineeda:', () => {
 
             expect(hero).to.not.equal(undefined);
         });
-        
+
         it('should not share state between mock instances', () => {
             let heroFactory: IneedaFactory<Hero> = ineeda.factory<Hero>();
 
