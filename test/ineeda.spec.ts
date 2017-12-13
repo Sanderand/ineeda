@@ -210,6 +210,7 @@ describe('ineeda:', () => {
             let hero1 = heroFactory();
             let hero2 = heroFactory();
 
+            expect(heroFactory.getLatest()).to.not.equal(hero1);
             expect(heroFactory.getLatest()).to.equal(hero2);
         });
     });
