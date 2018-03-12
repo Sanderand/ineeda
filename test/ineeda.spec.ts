@@ -95,7 +95,7 @@ describe('ineeda:', () => {
 
             let hero = ineeda<Hero>();
 
-            sinon.stub(hero.holdOut, 'then').returns(Promise.resolve());
+            sinon.stub(hero.holdOut, 'then').resolves();
 
             let result = hero.holdOut.then()
             .then(() => {
@@ -250,12 +250,12 @@ describe('ineeda:', () => {
                 calledBefore: null,
                 restore: null
             });
-            ineeda.intercept((value, key: string, values, target) => {
+            ineeda.intercept((value: any, key: string, values: any, target: any) => {
                 if (value instanceof Function) {
                     /* tslint:disable:no-empty */
                     target[key] = () => { };
                     /* tslint:enable:no-empty */
-                    return sinon.stub(target, key, values[key]);
+                    return sinon.stub(target, key).callsFake(values[key]);
                 }
                 return value;
             });
@@ -277,12 +277,12 @@ describe('ineeda:', () => {
             let weapon = ineeda<Weapon>({
                 sharpen: () => 5
             })
-            .intercept((value, key, values, target) => {
+            .intercept((value: any, key: string, values: any, target: any) => {
                 if (value instanceof Function) {
                     /* tslint:disable:no-empty */
                     target[key] = () => { };
                     /* tslint:enable:no-empty */
-                    return sinon.stub(target, key, values[key]);
+                    return sinon.stub(target, key).callsFake(values[key]);
                 }
                 return value;
             });
