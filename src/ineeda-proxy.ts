@@ -14,7 +14,7 @@ export function createProxy <T, K extends IneedaKey<T>> (valuesExternal: Partial
 
     reset();
     let proxyBase = key ? NOOP : {};
-    return new Proxy(<any>proxyBase, { apply, get, getOwnPropertyDescriptor, ownKeys, set });
+    return new Proxy(<any>proxyBase, { apply, get, getOwnPropertyDescriptor, has, ownKeys, set });
 
     function apply (): void {
         throw new Error(`
@@ -43,6 +43,10 @@ export function createProxy <T, K extends IneedaKey<T>> (valuesExternal: Partial
         let descriptor = Object.getOwnPropertyDescriptor(target, key) || DEFAULT_PROPERTY_DESCRIPTION;
         descriptor.value = get(target, key);
         return descriptor;
+    }
+
+    function has (): boolean {
+        return true;
     }
 
     function hasOwnProperty (): boolean {

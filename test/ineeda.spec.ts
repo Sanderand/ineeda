@@ -147,6 +147,12 @@ describe('ineeda:', () => {
             expect(Array.from(arraylike)).to.deep.equal([2, 3, 4, 5]);
             expect(Array.isArray(Array.from(arraylike))).to.equal(true);
         });
+
+        it('should return true when in operator is used', () => {
+            let hero = ineeda<Hero>();
+
+            expect('weapon' in hero).to.equal(true);
+        });
     });
 
     describe('ineeda - instanceof:', () => {
