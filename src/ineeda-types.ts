@@ -30,7 +30,7 @@ export interface IneedaFactory <T> {
 
 export interface IneedaApi {
    <T> (values?: Partial<T>): T & IneedaProxy<T>;
-   factory <T> (values?: Partial<T>): IneedaFactory<T & IneedaProxy<T>>;
+   factory <T> (values?: Partial<T>): IneedaFactory<T>;
    instanceof <T> (constructor: Constructable<T>, values?: Partial<T>): T & IneedaProxy<T>;
    intercept <T> (interceptorOrToken: IneedaInterceptorOrToken<T>, interceptor?: IneedaInterceptor<T>): void;
    reset (): void;
