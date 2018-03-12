@@ -9,10 +9,6 @@ Auto-mocking with [Proxies](https://developer.mozilla.org/en/docs/Web/JavaScript
 ```
 npm install ineeda --save-dev
 ```
-or 
-```
-yarn add ineeda --dev
-```
 
 # Mocking:
 
