@@ -30,20 +30,36 @@ describe('ineeda:', () => {
             expect(horse).to.not.equal(undefined);
         });
 
+        it('should allow you to access nested unspecified properties', () => {
+            let hero = ineeda<Hero>();
+
+            expect(hero.weapon).to.not.equal(undefined);
+        });
+
         it('should allow you to provide specific values', () => {
-            let hero = ineeda<Hero>({ name: 'bonnie' });
+            let hero = ineeda<Hero>({
+                name: 'bonnie'
+            });
 
             expect(hero.name).to.equal('bonnie');
         });
 
         it('should allow you to provide nested specific values', () => {
             let hero = ineeda<Hero>({
-                weapon: ineeda<Weapon>({
+                weapon: {
                     strength: 5
-                })
+                }
             });
 
             expect(hero.weapon.strength).to.equal(5);
+        });
+
+        it('should allow you to access nested unspecified properties', () => {
+            let hero = ineeda<Hero>({
+                weapon: { }
+            });
+
+            expect(hero.weapon.strength).to.not.equal(undefined);
         });
 
         it('should set a stubbed function for a function', () => {
@@ -55,6 +71,8 @@ describe('ineeda:', () => {
         });
 
         it('should allow you to use sinon to stub a function', () => {
+            /* tslint:disable */
+            debugger;
             ineeda.intercept({
                 calledBefore: null,
                 restore: null
@@ -121,9 +139,9 @@ describe('ineeda:', () => {
 
         it('should have a `toJSON` implementation', () => {
             let hero = ineeda<Hero>({
-                weapon: ineeda<Weapon>({
+                weapon: {
                     strength: 5
-                })
+                }
             });
 
             expect(JSON.stringify(hero, null, '    ')).to.equal(dedent(`{
@@ -135,7 +153,7 @@ describe('ineeda:', () => {
 
         it('should work with Object.keys', () => {
             let hero = ineeda<Hero>({
-                weapon: ineeda<Weapon>()
+                weapon: { }
             });
 
             expect(Object.keys(hero)).to.deep.equal(['prototype', 'weapon']);
