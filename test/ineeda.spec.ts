@@ -113,7 +113,7 @@ describe('ineeda:', () => {
 
             let hero = ineeda<Hero>();
 
-            sinon.stub(hero.holdOut, 'then').returns(Promise.resolve());
+            sinon.stub(hero.holdOut, 'then').resolves();
 
             let result = hero.holdOut.then()
             .then(() => {
@@ -164,6 +164,12 @@ describe('ineeda:', () => {
 
             expect(Array.from(arraylike)).to.deep.equal([2, 3, 4, 5]);
             expect(Array.isArray(Array.from(arraylike))).to.equal(true);
+        });
+
+        it('should return true when in operator is used', () => {
+            let hero = ineeda<Hero>();
+
+            expect('weapon' in hero).to.equal(true);
         });
     });
 
@@ -262,7 +268,7 @@ describe('ineeda:', () => {
                 calledBefore: null,
                 restore: null
             });
-            ineeda.intercept((value, key: string, values, target) => {
+            ineeda.intercept((value: any, key: string, values: any, target: any) => {
                 if (value instanceof Function) {
                     /* tslint:disable-next-line:no-empty */
                     target[key] = () => { };
@@ -288,7 +294,7 @@ describe('ineeda:', () => {
             let weapon = ineeda<Weapon>({
                 sharpen: () => 5
             })
-            .intercept((value, key, values, target) => {
+            .intercept((value: any, key: string, values: any, target: any) => {
                 if (value instanceof Function) {
                     /* tslint:disable-next-line:no-empty */
                     target[key] = () => { };
