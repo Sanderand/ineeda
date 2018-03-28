@@ -4,4 +4,3 @@ reports
 dist
 .nyc_output
 coverage
-yarn-error.log

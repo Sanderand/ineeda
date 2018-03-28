@@ -10,7 +10,7 @@ export type DeepPartial<T> = {
     [P in keyof T]?: DeepPartial<T[P]>;
 };
 
-export type IneedaKey<T> = keyof IneedaProxy<T> | keyof T | keyof Array<any> | keyof Date | keyof Object | keyof Function;
+export type IneedaKey<T> = keyof IneedaProxy<T> | keyof T | keyof Object | keyof Function;
 
 export type Ineeda<T> = T & IneedaProxy<T>;
 

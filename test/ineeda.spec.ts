@@ -54,6 +54,16 @@ describe('ineeda:', () => {
             expect(hero.weapon.strength).to.equal(5);
         });
 
+        it('should allow you to provide nested mocks', () => {
+            let hero = ineeda<Hero>({
+                weapon: ineeda<Weapon>({
+                    strength: 5
+                })
+            });
+
+            expect(hero.weapon.strength).to.equal(5);
+        });
+
         it('should allow you to access nested unspecified properties', () => {
             let hero = ineeda<Hero>({
                 weapon: { }
@@ -62,7 +72,7 @@ describe('ineeda:', () => {
             expect(hero.weapon.strength).to.not.equal(undefined);
         });
 
-        it('should set a stubbed function for a function', () => {
+        it('should set a throwing function for a function', () => {
             let hero = ineeda<Hero>();
 
             expect(() => {
@@ -71,8 +81,6 @@ describe('ineeda:', () => {
         });
 
         it('should allow you to use sinon to stub a function', () => {
-            /* tslint:disable */
-            debugger;
             ineeda.intercept({
                 calledBefore: null,
                 restore: null
@@ -159,17 +167,31 @@ describe('ineeda:', () => {
             expect(Object.keys(hero)).to.deep.equal(['prototype', 'weapon']);
         });
 
-        it('should work with Array.from', () => {
-            let arraylike = ineeda<ArrayLike<number>>([2, 3, 4, 5]);
-
-            expect(Array.from(arraylike)).to.deep.equal([2, 3, 4, 5]);
-            expect(Array.isArray(Array.from(arraylike))).to.equal(true);
-        });
-
         it('should return true when in operator is used', () => {
             let hero = ineeda<Hero>();
 
             expect('weapon' in hero).to.equal(true);
+        });
+
+        describe('ineeda - Arrays', () => {
+            it('should work with Array.from', () => {
+                let arraylike = ineeda<ArrayLike<number>>([2, 3, 4, 5]);
+
+                expect(Array.from(arraylike)).to.deep.equal([2, 3, 4, 5]);
+                expect(Array.isArray(Array.from(arraylike))).to.equal(true);
+            });
+
+            it('should not break Arrays', () => {
+                let array = ineeda<Array<any>>([
+                    1, 2, 3
+                ]);
+
+                array.push(4);
+
+                expect(array.length).to.equal(4);
+                expect(array[1]).to.equal(2);
+                expect(array[3]).to.equal(4);
+            });
         });
     });
 
@@ -256,7 +278,7 @@ describe('ineeda:', () => {
             let hero = ineeda<Hero>({
                 age: 18
             })
-            .intercept(value => typeof value === "number" ? value + 10 : value);
+            .intercept(value => typeof value === 'number' ? value + 10 : value);
 
             expect(hero.age).to.equal(28);
 

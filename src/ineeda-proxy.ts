@@ -29,12 +29,6 @@ export function createProxy <T, K> (valuesExternal: DeepPartial<T>, key?: K): In
         if (_isExternalKey(key)) {
             return _runInterceptors(target, key as K, valuesExternal[key as K]);
         }
-        if (_isArrayKey(key)) {
-            return ([] as Array<any>)[key];
-        }
-        if (_isDateKey(key)) {
-            return (new Date())[key];
-        }
         if (_isObjectKey(key) || _isSymbol(key)) {
             return ({} as Object)[key];
         }
@@ -106,20 +100,12 @@ export function createProxy <T, K> (valuesExternal: DeepPartial<T>, key?: K): In
         return Object.hasOwnProperty.call(valuesInternal, key);
     }
 
-    function _isArrayKey (key: IneedaKey<T>): key is keyof Array<any> {
-        return key in [];
-    }
-
-    function _isDateKey (key: IneedaKey<T>): key is keyof Date {
-        return key in new Date();
-    }
-
     function _isObjectKey (key: IneedaKey<T>): key is keyof Object {
         return key in {};
     }
 
     function _isObject (value: any): boolean {
-        return typeof value === 'object';
+        return typeof value === 'object' && value != null;
     }
 
     function _isSymbol (key: any): key is keyof Object {
@@ -132,8 +118,7 @@ export function createProxy <T, K> (valuesExternal: DeepPartial<T>, key?: K): In
                 return n(p, key, valuesExternal, target);
             }, value);
             intercepted.push(key);
-            valuesExternal[key] = _isObject(result) ? createProxy<T[K], null>(result) : result;
-            valuesExternal[key] = result;
+            valuesExternal[key] = _isObject(result) ? createProxy<T[K], K>(result, key) : result;
         }
         return valuesExternal[key];
     }
