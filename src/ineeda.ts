@@ -1,13 +1,12 @@
 // Dependencies:
 import { resetInterceptors, setInterceptors, setInterceptorsForToken } from './ineeda-interceptors';
 import { createProxy } from './ineeda-proxy';
-import { Constructable, DeepPartial, IneedaFactory, IneedaInterceptor, IneedaInterceptorOrToken, IneedaKey, IneedaProxy } from './ineeda-types';
+import { Constructable, DeepPartial, Ineeda, IneedaFactory, IneedaInterceptor, IneedaInterceptorOrToken } from './ineeda-types';
 
 export function factory <T> (values?: DeepPartial<T>): IneedaFactory<T> {
-    let instances: Array<T & IneedaProxy<T>> = [];
-    let factory: IneedaFactory<T> = function ineedaFactory (): T & IneedaProxy<T> {
-        let seed = Object.assign({}, values);
-        let mock = instance<T>(seed);
+    let instances: Array<Ineeda<T>> = [];
+    let factory: IneedaFactory<T> = function ineedaFactory (): Ineeda<T> {
+        let mock = instance<T>(Object.assign({}, values));
         instances.push(mock);
         return mock;
     };
@@ -16,11 +15,11 @@ export function factory <T> (values?: DeepPartial<T>): IneedaFactory<T> {
     return factory;
 }
 
-export function instance <T> (values?: DeepPartial<T>): T & IneedaProxy<T> {
-    return createProxy<T, IneedaKey<T>>(values);
+export function instance <T> (values?: DeepPartial<T>): Ineeda<T> {
+    return createProxy<T, null>(values);
 }
 
-export function ninstanceof <T> (constructor: Constructable<T>, values?: DeepPartial<T>): T & IneedaProxy<T> {
+export function ninstanceof <T> (constructor: Constructable<T>, values?: DeepPartial<T>): Ineeda<T> {
     let mock = instance<T>(values);
     Object.setPrototypeOf(mock, constructor.prototype);
     return mock;

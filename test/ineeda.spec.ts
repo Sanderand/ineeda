@@ -250,7 +250,7 @@ describe('ineeda:', () => {
             let hero = ineeda<Hero>({
                 age: 18
             })
-            .intercept(value => value + 10);
+            .intercept(value => typeof value === "number" ? value + 10 : value);
 
             expect(hero.age).to.equal(28);
 
@@ -264,10 +264,9 @@ describe('ineeda:', () => {
             });
             ineeda.intercept((value, key: string, values, target) => {
                 if (value instanceof Function) {
-                    /* tslint:disable:no-empty */
+                    /* tslint:disable-next-line:no-empty */
                     target[key] = () => { };
-                    /* tslint:enable:no-empty */
-                    return sinon.stub(target, key, values[key]);
+                    return sinon.stub(target, key);
                 }
                 return value;
             });
@@ -291,10 +290,9 @@ describe('ineeda:', () => {
             })
             .intercept((value, key, values, target) => {
                 if (value instanceof Function) {
-                    /* tslint:disable:no-empty */
+                    /* tslint:disable-next-line:no-empty */
                     target[key] = () => { };
-                    /* tslint:enable:no-empty */
-                    return sinon.stub(target, key, values[key]);
+                    return sinon.stub(target, key).callsFake(value as () => any);
                 }
                 return value;
             });

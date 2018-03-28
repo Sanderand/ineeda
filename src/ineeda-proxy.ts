@@ -1,20 +1,20 @@
 // Dependencies:
 import { getGlobalInterceptors, getInterceptors, getInterceptorsForToken } from './ineeda-interceptors';
-import { DeepPartial, IneedaInterceptor, IneedaInterceptorFunction, IneedaInterceptorOrToken, IneedaInterceptorToken, IneedaKey, IneedaProxy, NOOP } from './ineeda-types';
+import { DeepPartial, Ineeda, IneedaInterceptor, IneedaInterceptorFunction, IneedaInterceptorOrToken, IneedaInterceptorToken, IneedaKey, IneedaProxy, NOOP } from './ineeda-types';
 
 // Constants:
 const DEFAULT_PROPERTY_DESCRIPTION: PropertyDescriptor = { configurable: true, enumerable: true, writable: true };
 
-export function createProxy <T, K extends IneedaKey<T>> (valuesExternal: DeepPartial<T>, key?: IneedaKey<T>): T & IneedaProxy<T> {
-    valuesExternal = valuesExternal || <DeepPartial<T>>{};
+export function createProxy <T, K> (valuesExternal: DeepPartial<T>, key?: K): Ineeda<T> {
+    valuesExternal = valuesExternal || {};
     let valuesInternal: IneedaProxy<T> = { hasOwnProperty, intercept, reset, toJSON, toString };
 
     let interceptors: Array<IneedaInterceptorFunction<T, keyof T>>;
-    let intercepted: Array<IneedaKey<T>> = [];
+    let intercepted: Array<keyof T> = [];
 
     reset();
-    let proxyBase = key ? NOOP : {};
-    return new Proxy(<any>proxyBase, { apply, get, getOwnPropertyDescriptor, ownKeys, set });
+    let proxyBase: any = key ? NOOP : {};
+    return new Proxy(proxyBase, { apply, get, getOwnPropertyDescriptor, ownKeys, set });
 
     function apply (): void {
         throw new Error(`
@@ -22,24 +22,30 @@ export function createProxy <T, K extends IneedaKey<T>> (valuesExternal: DeepPar
         `);
     }
 
-    function get <K extends keyof T> (target: T, key: IneedaKey<T>): any {
+    function get <K extends keyof T> (target: Ineeda<T>, key: IneedaKey<T>): any {
         if (_isInternalKey(key)) {
             return valuesInternal[key];
         }
         if (_isExternalKey(key)) {
-            return _runInterceptors(target, key, valuesExternal[key]);
+            return _runInterceptors(target, key as K, valuesExternal[key as K]);
+        }
+        if (_isArrayKey(key)) {
+            return ([] as Array<any>)[key];
+        }
+        if (_isDateKey(key)) {
+            return (new Date())[key];
         }
         if (_isObjectKey(key) || _isSymbol(key)) {
-            return {}[key];
+            return ({} as Object)[key];
         }
         if (_isFunctionKey(key)) {
-            return NOOP[key];
+            return (NOOP as Function)[key];
         }
 
-        return _runInterceptors(target, <K>key, createProxy<K, IneedaKey<K>>(null, key));
+        return _runInterceptors(target, key, createProxy<T[K], K>(null, key as K));
     }
 
-    function getOwnPropertyDescriptor (target: T, key: keyof T): PropertyDescriptor {
+    function getOwnPropertyDescriptor (target: Ineeda<T>, key: keyof T): PropertyDescriptor {
         let descriptor = Object.getOwnPropertyDescriptor(target, key) || DEFAULT_PROPERTY_DESCRIPTION;
         descriptor.value = get(target, key);
         return descriptor;
@@ -49,7 +55,7 @@ export function createProxy <T, K extends IneedaKey<T>> (valuesExternal: DeepPar
         return true;
     }
 
-    function intercept (interceptorOrToken: IneedaInterceptorOrToken<T>): T {
+    function intercept (interceptorOrToken: IneedaInterceptorOrToken<T>): Ineeda<T> {
         if (_hasInterceptorForToken(interceptorOrToken)) {
             interceptors = interceptors.concat(getInterceptorsForToken<T>(interceptorOrToken));
         } else {
@@ -62,12 +68,12 @@ export function createProxy <T, K extends IneedaKey<T>> (valuesExternal: DeepPar
         return ['prototype', ...Object.keys(valuesExternal)];
     }
 
-    function reset (): T {
+    function reset (): Ineeda<T> {
         interceptors = getGlobalInterceptors();
         return this;
     }
 
-    function set (target: T, key: keyof T, value: any): boolean {
+    function set (target: Ineeda<T>, key: keyof T, value: any): boolean {
         valuesExternal[key] = value;
         return true;
     }
@@ -88,12 +94,20 @@ export function createProxy <T, K extends IneedaKey<T>> (valuesExternal: DeepPar
         return key in NOOP;
     }
 
-    function _isExternalKey (key: IneedaKey<T>): key is keyof T {
-        return !!valuesExternal[<any>key];
+    function _isExternalKey (key: any): boolean {
+        return !!valuesExternal[key];
     }
 
     function _isInternalKey (key: IneedaKey<T>): key is keyof IneedaProxy<T> {
         return Object.hasOwnProperty.call(valuesInternal, key);
+    }
+
+    function _isArrayKey (key: IneedaKey<T>): key is keyof Array<any> {
+        return key in [];
+    }
+
+    function _isDateKey (key: IneedaKey<T>): key is keyof Date {
+        return key in new Date();
     }
 
     function _isObjectKey (key: IneedaKey<T>): key is keyof Object {
@@ -104,21 +118,19 @@ export function createProxy <T, K extends IneedaKey<T>> (valuesExternal: DeepPar
         return typeof value === 'object';
     }
 
-    function _isSymbol (key: PropertyKey): boolean {
+    function _isSymbol (key: any): key is keyof Object {
         return typeof key === 'symbol' || key === 'inspect';
     }
 
-    function _runInterceptors <K extends keyof T> (target: T, key: K, value: any): any {
+    function _runInterceptors <K extends keyof T> (target: Ineeda<T>, key: K, value: any): any {
         if (!intercepted.includes(key)) {
             let result = interceptors.reduce((p, n) => {
                 return n(p, key, valuesExternal, target);
             }, value);
             intercepted.push(key);
-            // valuesExternal[key] = _isObject(result) ? createProxy(result) : result;
+            valuesExternal[key] = _isObject(result) ? createProxy<T[K], null>(result) : result;
             valuesExternal[key] = result;
         }
-        // tslint:disable
-        console.log(valuesExternal);
         return valuesExternal[key];
     }
 }

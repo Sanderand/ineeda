@@ -4,7 +4,6 @@ export default class Weapon {
     public isMagic: boolean;
     public isBlunt: boolean;
 
-    /* tslint:disable:no-empty */
+    /* tslint:disable-next-line:no-empty */
     public sharpen (): void { }
-    /* tslint:enable:no-empty */
 }

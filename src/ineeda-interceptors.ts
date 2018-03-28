@@ -1,5 +1,5 @@
 // Dependencies:
-import { IneedaInterceptor, IneedaInterceptorFunction, IneedaInterceptorToken  } from './ineeda-types';
+import { IneedaInterceptor, IneedaInterceptorFunction, IneedaInterceptorToken } from './ineeda-types';
 
 // Constants:
 let INTERCEPTORS: Array<IneedaInterceptorFunction<any, keyof any>> = [];
