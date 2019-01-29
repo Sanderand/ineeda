@@ -1,6 +1,6 @@
 {
   "name": "ineeda",
-  "version": "0.11.2",
+  "version": "0.11.3",
   "description": "Create stub objects from TypeScript interfaces!",
   "main": "dist/src/index.js",
   "typings": "dist/src/index.d.ts",
